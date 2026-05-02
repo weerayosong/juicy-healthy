@@ -6,25 +6,16 @@ import {
     Route,
     RouterProvider,
 } from 'react-router-dom'
-import App from './App.jsx'
 import './index.css'
+import App from './App.jsx'
+import HomeScreen from './screens/HomeScreen.jsx'
 
 // สร้าง Router จำลองโครงสร้างไว้ก่อน เดี๋ยวเพิม route ตาม page-level components
 // ฝึกใช้แบบ data mode ไปเลย ถึงแม้ routes/route จะง่ายกว่าก็เถอะ
 const router = createBrowserRouter(
     createRoutesFromElements(
         <Route path="/" element={<App />}>
-            {/* test Home */}
-            <Route
-                index={true}
-                path="/"
-                element={
-                    <div className="text-center text-2xl mt-10">
-                        Okay, Frontend, Backend setup, Done <br />
-                        It's time to first deploy for test UI
-                    </div>
-                }
-            />
+            <Route index={true} path="/" element={<HomeScreen />} />
         </Route>,
     ),
 )
