@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { FaCarrot } from 'react-icons/fa6'
 import {
     FaSearch,
     FaShoppingBag,
@@ -18,14 +19,35 @@ const Header = () => {
 
     return (
         <header className="bg-slate-950 text-white sticky top-0 z-50 shadow-elegant">
+            <svg width="0" height="0" className="absolute">
+                <linearGradient
+                    id="juice-gradient"
+                    x1="0%"
+                    y1="75%"
+                    x2="75%"
+                    y2="0%"
+                >
+                    <stop stopColor="#f97316" offset="75%" />
+
+                    <stop stopColor="#a3e635" offset="75%" />
+                </linearGradient>
+            </svg>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-20">
                     <div className="shrink-0 font-bold text-2xl tracking-widest uppercase">
-                        <Link
-                            to="/"
-                            className="hover:text-secondary transition duration-300"
-                        >
-                            Juicy Healthy
+                        <Link to="/" className="group transition duration-300">
+                            <div className="flex justify-center items-center text-white">
+                                {/* 2. ไอคอนแครอท: เริ่มต้น fill เป็นสีขาว พอ Hover ให้เรียกใช้ url(#juice-gradient) */}
+                                <FaCarrot className="text-6xl px-1 fill-white group-hover:fill-[url(#juice-gradient)] transition-all duration-300" />
+
+                                <span className="text-2xl font-bold tracking-widest uppercase px-1">
+                                    <span>Juicy</span>
+
+                                    <span className="group-hover:text-teal-400">
+                                        Healthy
+                                    </span>
+                                </span>
+                            </div>
                         </Link>
                     </div>
 
