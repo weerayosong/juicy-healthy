@@ -1,12 +1,25 @@
-import { FaSearch, FaShoppingBag, FaUser, FaSlidersH } from 'react-icons/fa'
+import { useState } from 'react'
+import {
+    FaSearch,
+    FaShoppingBag,
+    FaUser,
+    FaSlidersH,
+    FaTimes,
+    FaBars,
+} from 'react-icons/fa'
 import { Link } from 'react-router-dom'
 
 const Header = () => {
+    const [isMenuOpen, setIsMenuOpen] = useState(false)
+
+    const toggleMenu = () => {
+        setIsMenuOpen(!isMenuOpen)
+    }
+
     return (
         <header className="bg-slate-950 text-white sticky top-0 z-50 shadow-elegant">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-20">
-                    {/* Logo */}
                     <div className="shrink-0 font-bold text-2xl tracking-widest uppercase">
                         <Link
                             to="/"
@@ -31,14 +44,14 @@ const Header = () => {
                     </div>
 
                     {/* Nav Links */}
-                    <div className="flex items-center space-x-8 text-sm font-medium">
+                    <div className="hidden md:flex items-center space-x-8 text-sm font-medium">
                         <Link
                             to="/cart"
                             className="hover:text-secondary transition flex items-center group"
                         >
                             <FaShoppingBag className="text-lg mr-2 text-slate-300 group-hover:text-secondary transition" />
                             รถเข็น
-                            <span className="ml-1.5 bg-secondary text-white text-[10px] px-2 py-0.5 rounded-sm shadow-sm">
+                            <span className="ml-1.5 bg-secondary text-white text-xs px-2 py-0.5 rounded-sm shadow-sm">
                                 3
                             </span>
                         </Link>
@@ -51,7 +64,6 @@ const Header = () => {
                             บัญชี
                         </Link>
 
-                        {/* Admin Menu อย่าลืมซ่อนตอนไม่เทสแล้ว */}
                         <Link
                             to="/admin/orderlist"
                             className="hover:text-secondary transition flex items-center group"
@@ -60,10 +72,75 @@ const Header = () => {
                             จัดการระบบ
                         </Link>
                     </div>
+
+                    {/* Hamburger Button */}
+                    <div className="md:hidden flex items-center">
+                        <button
+                            onClick={toggleMenu}
+                            className="text-slate-300 hover:text-white focus:outline-none text-2xl p-2"
+                        >
+                            {isMenuOpen ? <FaTimes /> : <FaBars />}
+                        </button>
+                    </div>
                 </div>
             </div>
+
+            {/* Mobile Menu Dropdown */}
+            {isMenuOpen && (
+                <div className="md:hidden bg-slate-900 border-t border-slate-800 px-4 pt-4 pb-6 space-y-4 shadow-inner absolute w-full">
+                    {/* Search Bar */}
+                    <div className="flex bg-slate-950 rounded-sm overflow-hidden border border-slate-800 focus-within:border-secondary focus-within:ring-1 focus-within:ring-secondary transition shadow-inner mb-6">
+                        <input
+                            type="text"
+                            placeholder="ค้นหาสินค้า..."
+                            className="w-full px-4 py-3 bg-transparent text-white placeholder-slate-400 focus:outline-none"
+                        />
+                        <button className="text-slate-300 px-5 hover:text-secondary transition flex items-center justify-center">
+                            <FaSearch />
+                        </button>
+                    </div>
+
+                    {/* Nav Links */}
+                    <div className="flex flex-col space-y-5 text-base font-medium">
+                        <Link
+                            onClick={toggleMenu}
+                            to="/cart"
+                            className="hover:text-secondary transition flex items-center text-slate-200"
+                        >
+                            <FaShoppingBag className="text-xl mr-4 text-slate-400" />
+                            รถเข็น
+                            <span className="ml-2 bg-secondary text-white text-xs px-2 py-0.5 rounded-sm shadow-sm">
+                                3
+                            </span>
+                        </Link>
+
+                        <Link
+                            onClick={toggleMenu}
+                            to="/login"
+                            className="hover:text-secondary transition flex items-center text-slate-200"
+                        >
+                            <FaUser className="text-xl mr-4 text-slate-400" />
+                            บัญชี
+                        </Link>
+
+                        <Link
+                            onClick={toggleMenu}
+                            to="/admin/orderlist"
+                            className="hover:text-secondary transition flex items-center text-slate-200"
+                        >
+                            <FaSlidersH className="text-xl mr-4 text-slate-400" />
+                            จัดการระบบ
+                        </Link>
+                    </div>
+                </div>
+            )}
         </header>
     )
 }
+
+// แบบ && (Shorthand(Logical AND Short-circuit)) = นิยมสุด เขียนสั้น เหมาะกับกรณีที่ "ถ้าจริงให้โชว์ ถ้าเท็จไม่ต้องทำอะไร"
+// แบบ || (Shorthand(Logical OR Short-circuit)) = นิยมสุด เขียนสั้น เหมาะกับกรณีที่ "ถ้าเท็จให้โชว์ ถ้าจริงไม่ต้องทำอะไร"
+// แบบ ? : (Ternary) = เหมาะกับกรณีที่ "ถ้าจริงโชว์แบบ A ถ้าเท็จให้โชว์แบบ B"
+// แบบ if = เหมาะกับเงื่อนไขที่ซับซ้อนมากๆ หรือมีการคำนวณหลายบรรทัดก่อนแสดงผลครับ
 
 export default Header
