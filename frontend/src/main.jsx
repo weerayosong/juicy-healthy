@@ -6,6 +6,10 @@ import {
     Route,
     RouterProvider,
 } from 'react-router-dom'
+
+import { Provider } from 'react-redux'
+import store from './store.js'
+
 import './index.css'
 import App from './App.jsx'
 import HomeScreen from './screens/HomeScreen.jsx'
@@ -28,6 +32,9 @@ const router = createBrowserRouter(
 
 ReactDOM.createRoot(document.getElementById('root')).render(
     <StrictMode>
-        <RouterProvider router={router} />
+        {/* เอา Provider มาคลุม RouterProvider ไว้ และโยน store เข้าไป */}
+        <Provider store={store}>
+            <RouterProvider router={router} />
+        </Provider>
     </StrictMode>,
 )

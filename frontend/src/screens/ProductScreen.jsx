@@ -1,20 +1,42 @@
 import { useState, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
+// <Link>: มันทำงานเหมือนแท็ก <a> ใน HTML หน้าที่ของมันคือ "คลิกปุ๊บ เปลี่ยนหน้าปั๊บ" ทันที
+// useNavigate: มันคือการ "เปลี่ยนหน้าด้วยการเขียนโปรแกรม (Programmatic Navigation)"
+import { useParams, Link, useNavigate } from 'react-router-dom' // เหตุผลการเลือกใช้ = "ลำดับการทำงาน (Flow of Execution)"
+import { useDispatch } from 'react-redux'
 import axios from 'axios'
+
 import { FaArrowLeft } from 'react-icons/fa'
 
 import Loader from '../components/Loader'
 import Message from '../components/Message'
 
+import { addToCart } from '../slices/cartSlice'
+
 const ProductScreen = () => {
     // รับค่า id จาก URL (เช่น /product/1)
     const { id: productId } = useParams()
+
+    // เตรียมปืนใหญ่ (dispatch) สำหรับยิงข้อมูล และตัวนำทาง (navigate) สำหรับเปลี่ยนหน้า
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
 
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState(null)
 
     // 1. สร้าง State มารับข้อมูลสินค้า 1 ชิ้น (ค่าเริ่มต้นให้เป็น Object ว่างๆ หรือ null)
     const [product, setProduct] = useState({})
+
+    // เพิ่ม State สำหรับเก็บ "จำนวนชิ้น" (เริ่มต้นที่ 1)
+    const [qty, setQty] = useState(1)
+
+    // สร้างฟังก์ชันสำหรับปุ่ม "เพิ่มลงรถเข็น"
+    const addToCartHandler = () => {
+        // ยิงข้อมูลสินค้า + จำนวนชิ้น (qty) เข้าไปใน Redux
+        dispatch(addToCart({ ...product, qty }))
+
+        // ยิงเสร็จ พาผู้ใช้กระโดดไปหน้าตะกร้า (ที่เดี๋ยวเราจะสร้าง)
+        navigate('/cart')
+    }
 
     // 2. ใช้ useEffect ดึงข้อมูลจาก API เมื่อเปิดหน้านี้ (หรือเมื่อ productId เปลี่ยน)
     useEffect(() => {
@@ -89,7 +111,33 @@ const ProductScreen = () => {
                         </span>
                     </div>
 
+                    {/* เพิ่มบล็อกนี้ ถ้ามีของในสต็อก (countInStock > 0) ให้โชว์กล่องเลือกจำนวน */}
+                    {product.countInStock > 0 && (
+                        <div className="flex items-center justify-between mb-8 pb-8 border-b border-slate-100">
+                            <span className="text-slate-600 font-medium">
+                                จำนวน:
+                            </span>
+                            <select
+                                value={qty}
+                                onChange={(e) => setQty(Number(e.target.value))}
+                                className="p-2 border border-slate-200 rounded-sm bg-slate-50 w-24 text-center focus:outline-none focus:border-teal-600"
+                            >
+                                {/* สร้าง Dropdown ตามจำนวนสต็อกที่มี ..แต่ จำกัดให้แสดงสูงสุดแค่ Math.min(จำนวนทั้งหมด,5) ชิ้น */}
+                                {[
+                                    ...Array(
+                                        Math.min(product.countInStock, 5),
+                                    ).keys(),
+                                ].map((x) => (
+                                    <option key={x + 1} value={x + 1}>
+                                        {x + 1}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
+
                     <button
+                        onClick={addToCartHandler} // << ผูกฟังก์ชันเข้ากับปุ่มตรงนี้!
                         className={`w-full py-4 rounded-sm font-bold text-lg transition duration-300 ${
                             product.countInStock === 0
                                 ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
