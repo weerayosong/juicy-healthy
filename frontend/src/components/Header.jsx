@@ -43,7 +43,7 @@ const Header = () => {
                                 <span className="text-2xl font-bold tracking-widest uppercase px-1">
                                     <span>Juicy</span>
 
-                                    <span className="group-hover:text-teal-400">
+                                    <span className="group-hover:text-teal-200">
                                         Healthy
                                     </span>
                                 </span>
