@@ -3,9 +3,15 @@ import { useParams, Link } from 'react-router-dom'
 import axios from 'axios'
 import { FaArrowLeft } from 'react-icons/fa'
 
+import Loader from '../components/Loader'
+import Message from '../components/Message'
+
 const ProductScreen = () => {
     // รับค่า id จาก URL (เช่น /product/1)
     const { id: productId } = useParams()
+
+    const [isLoading, setIsLoading] = useState(true)
+    const [error, setError] = useState(null)
 
     // 1. สร้าง State มารับข้อมูลสินค้า 1 ชิ้น (ค่าเริ่มต้นให้เป็น Object ว่างๆ หรือ null)
     const [product, setProduct] = useState({})
@@ -14,21 +20,28 @@ const ProductScreen = () => {
     useEffect(() => {
         const fetchProduct = async () => {
             try {
+                setIsLoading(true)
+
                 // ยิงไปที่ /api/products/:id เพื่อดึงข้อมูลชิ้นเดียว
                 const { data } = await axios.get(`/api/products/${productId}`)
                 setProduct(data)
-            } catch (error) {
-                console.error('Error fetching product:', error)
+
+                setIsLoading(false)
+            } catch (err) {
+                setError(
+                    err.response && err.response.data.message
+                        ? err.response.data.message
+                        : err.message,
+                )
+                setIsLoading(false)
             }
         }
 
         fetchProduct()
     }, [productId]) // ใส่ productId ไว้ตรงนี้ เพื่อบอกว่าถ้า ID เปลี่ยน ให้ดึงข้อมูลใหม่นะ
 
-    // ดักไว้ก่อนว่าถ้ายังไม่มีข้อมูล (กำลังโหลด) ไม่ต้องแสดง UI ที่พังๆ
-    if (!product._id) {
-        return <div className="text-center py-10">กำลังโหลดข้อมูล...</div>
-    }
+    if (isLoading) return <Loader />
+    if (error) return <Message>{error}</Message>
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
