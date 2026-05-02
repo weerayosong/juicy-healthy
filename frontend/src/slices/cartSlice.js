@@ -30,11 +30,22 @@ const cartSlice = createSlice({
             // สุดท้าย: เอาข้อมูลตะกร้าล่าสุด ไปเซฟฝังไว้ในเบราว์เซอร์ (LocalStorage)
             localStorage.setItem('cart', JSON.stringify(state))
         },
+        // ฟังก์ชันลบสินค้า
+        removeFromCart: (state, action) => {
+            // ใช้ .filter() กรองเอาเฉพาะตัวที่ ID "ไม่ตรง" กับที่ส่งมา (แปลว่าตัวที่ตรงจะถูกคัดทิ้ง) สร้างอาร์เรย์ใหม่
+            state.cartItems = state.cartItems.filter(
+                (x) => x._id !== action.payload,
+            )
+
+            // อย่าลืม!!!! เอาตะกร้าใหม่ไปทับของเดิมใน LocalStorage ด้วย
+            localStorage.setItem('cart', JSON.stringify(state))
+        },
     },
 })
 
 // ส่งออกแอคชัน (ฟังก์ชัน) ไปให้ไฟล์อื่นกดเรียกใช้
-export const { addToCart } = cartSlice.actions
+// อย่าลืม Export ตัว removeFromCart ออกมาด้วย
+export const { addToCart, removeFromCart } = cartSlice.actions
 
 // ส่งออกตัวลิ้นชัก ไปเสียบในโกดังใหญ่
 export default cartSlice.reducer
