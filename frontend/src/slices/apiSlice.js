@@ -8,5 +8,5 @@ const baseQuery = fetchBaseQuery({ baseUrl: BASE_URL })
 export const apiSlice = createApi({
     baseQuery,
     tagTypes: ['Product', 'Order', 'User'], // ประเภทของข้อมูลที่ต้องการจัดการ Cache
-    endpoints: (builder) => ({}), // ปล่อยว่างไว้ก่อน เดี๋ยวให้ตัวอื่นมา inject (เสียบปลั๊ก) เข้าไป
+    endpoints: () => ({}), // ปล่อยว่างไว้ก่อน เดี๋ยวให้ตัวอื่นมา inject (เสียบปลั๊ก) เข้าไป
 })
