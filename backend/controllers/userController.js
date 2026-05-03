@@ -82,7 +82,14 @@ const registerUser = asyncHandler(async (req, res) => {
 // @route   POST /api/users/logout
 // @access  Private
 const logoutUser = asyncHandler(async (req, res) => {
-    res.send('ออกจากระบบสำเร็จ (เดี๋ยวมาเขียนต่อ)')
+    // เอาคุกกี้ชื่อ 'jwt' มาเขียนทับด้วยค่าว่างๆ ('')
+    // และตั้งเวลาหมดอายุ (expires) เป็น 0 เพื่อให้เบราว์เซอร์ลบทิ้งทันที
+    res.cookie('jwt', '', {
+        httpOnly: true,
+        expires: new Date(0),
+    })
+
+    res.status(200).json({ message: 'ออกจากระบบสำเร็จ ลาก่อนคุกกี้!' })
 })
 
 // @desc    ดูข้อมูลโปรไฟล์ตัวเอง (Get user profile)
@@ -100,7 +107,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
 })
 
 // ==========================================
-// 🛡️ โซนของ Admin (ผู้ดูแลระบบ)
+// 😈 โซนของ Admin (ผู้ดูแลระบบ) 😈
 // ==========================================
 
 // @desc    ดูรายชื่อผู้ใช้ทั้งหมด (Get users)

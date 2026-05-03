@@ -1,5 +1,6 @@
 import express from 'express'
 import dotenv from 'dotenv'
+import cookieParser from 'cookie-parser'
 import connectDB from './config/db.js' // อย่าลืม!! ต้องใส่ .js เพราะระบุ "type": "module" ไว้
 import productRoutes from './routes/productRoutes.js'
 import userRoutes from './routes/userRoutes.js'
@@ -12,8 +13,12 @@ connectDB()
 const app = express()
 const port = process.env.PORT || 5000
 
+// Body Parser middlewares
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+
+// Cookie Parser เปิดใช้งานให้ Express อ่านคุกกี้ได้
+app.use(cookieParser())
 
 app.get('/', (req, res) => {
     res.send('Juicy Healthy API is running...')
