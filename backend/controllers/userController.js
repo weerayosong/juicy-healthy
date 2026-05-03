@@ -1,23 +1,27 @@
+// 1. นำเข้าบอดี้การ์ด (asyncHandler) และพิมพ์เขียว (User Model)
 import asyncHandler from '../middleware/asyncHandler.js'
 import User from '../models/userModel.js'
-import generateToken from '../utils/generateToken.js' // นำเข้าโรงงานผลิต Token
+// 2. นำเข้าโรงงานผลิตบัตรผ่าน (generateToken) ที่เราเพิ่งสร้าง
+import generateToken from '../utils/generateToken.js'
 
+// ==========================================
 // @desc    เข้าสู่ระบบ (Auth user & get token)
 // @route   POST /api/users/auth
 // @access  Public
+// ==========================================
 const authUser = asyncHandler(async (req, res) => {
-    // 1. รับ Email และ Password ที่ลูกค้ากรอกเข้ามาจากหน้าเว็บ
+    // รับ Email และ Password จากหน้าเว็บ
     const { email, password } = req.body
 
-    // 2. เดินไปหาใน Database ว่ามี Email นี้ไหม?
+    // หา User ใน Database ด้วย Email
     const user = await User.findOne({ email })
 
-    // 3. ถ้าเจออีเมล และ รหัสผ่านตรงกัน (เราเรียกใช้ฟังก์ชัน matchPassword จาก Model ที่เคยสร้างไว้)
+    // ถ้าเจอ User และ รหัสผ่านตรงกัน (เช็คด้วย matchPassword ที่เราทำไว้ใน Model)
     if (user && (await user.matchPassword(password))) {
-        // 4. สั่งสร้าง Token และฝังลงใน Cookie
+        // สั่งสร้าง Token และฝังลงใน Cookie ทันที
         generateToken(res, user._id)
 
-        // 5. ส่งข้อมูลพื้นฐานกลับไปให้หน้าบ้าน (แต่ไม่ส่งรหัสผ่านไปนะ!)
+        // ส่งข้อมูลผู้ใช้ (ที่ไม่ใช่รหัสผ่าน) กลับไปให้หน้าบ้าน
         res.status(200).json({
             _id: user._id,
             name: user.name,
@@ -25,7 +29,7 @@ const authUser = asyncHandler(async (req, res) => {
             isAdmin: user.isAdmin,
         })
     } else {
-        // ถ้าอีเมลไม่มี หรือ รหัสผิด ให้เตะออก
+        // ถ้ารหัสผิด หรือไม่มีอีเมลนี้ ให้เตะออกและแจ้ง Error
         res.status(401)
         throw new Error('อีเมลหรือรหัสผ่านไม่ถูกต้อง')
     }
