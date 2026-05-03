@@ -2,6 +2,9 @@ import { Outlet } from 'react-router-dom'
 import Header from './components/Header'
 import Footer from './components/Footer'
 
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+
 const App = () => {
     return (
         // ทำ container div ให้ทุกคอมโพเนนท์อยู่ใน responsive ด้วย
@@ -11,6 +14,7 @@ const App = () => {
                 <Outlet />
             </main>
             <Footer />
+            <ToastContainer />
         </div>
     )
 }

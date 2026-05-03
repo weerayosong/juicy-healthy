@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser'
 import connectDB from './config/db.js' // อย่าลืม!! ต้องใส่ .js เพราะระบุ "type": "module" ไว้
 import productRoutes from './routes/productRoutes.js'
 import userRoutes from './routes/userRoutes.js'
+import orderRoutes from './routes/orderRoutes.js'
 
 dotenv.config()
 
@@ -27,6 +28,7 @@ app.get('/', (req, res) => {
 // บอกให้ Express 'useใช้งาน' productRoutes เมื่อเรียก URL ที่ขึ้นต้นด้วย /api/products
 app.use('/api/products', productRoutes)
 app.use('/api/users', userRoutes) // เปิดใช้เส้น ยูเซอร์ ด้วย
+app.use('/api/orders', orderRoutes)
 
 app.listen(port, () => {
     console.log(

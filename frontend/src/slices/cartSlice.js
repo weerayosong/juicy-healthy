@@ -1,5 +1,33 @@
 import { createSlice } from '@reduxjs/toolkit'
 
+// ฟังก์ชันสำหรับคำนวณราคาทุกอย่างในตะกร้า
+const updateCart = (state) => {
+    // 1. คำนวณราคาสินค้าทั้งหมด (Items Price)
+    state.itemsPrice = state.cartItems.reduce(
+        (acc, item) => acc + item.price * item.qty,
+        0,
+    )
+
+    // 2. คำนวณค่าจัดส่ง (Shipping Price)[cite: 1]
+    // ตัวอย่าง: ถ้ายอดซื้อเกิน 1,000฿ ส่งฟรี ถ้าไม่ถึงคิด 100฿
+    state.shippingPrice = state.itemsPrice > 1000 ? 0 : 100
+
+    // 3. คำนวณภาษี (Tax Price) - สมมติที่ 7%[cite: 1]
+    state.taxPrice = Number((0.07 * state.itemsPrice).toFixed(2))
+
+    // 4. คำนวณราคารวมสุทธิ (Total Price)[cite: 1]
+    state.totalPrice = (
+        Number(state.itemsPrice) +
+        Number(state.shippingPrice) +
+        Number(state.taxPrice)
+    ).toFixed(2)
+
+    // บันทึกลง LocalStorage[cite: 1]
+    localStorage.setItem('cart', JSON.stringify(state))
+
+    return state
+}
+
 // 1. กำหนดค่าเริ่มต้น (Initial State)
 // ความเจ๋งคือเราดักเช็ค LocalStorage ไว้เลย! เวลากด F5 รีเฟรชหน้าเว็บ ของในตะกร้าจะได้ไม่หาย
 const initialState = localStorage.getItem('cart')
@@ -27,8 +55,7 @@ const cartSlice = createSlice({
                 state.cartItems = [...state.cartItems, item]
             }
 
-            // สุดท้าย: เอาข้อมูลตะกร้าล่าสุด ไปเซฟฝังไว้ในเบราว์เซอร์ (LocalStorage)
-            localStorage.setItem('cart', JSON.stringify(state))
+            return updateCart(state)
         },
         // ฟังก์ชันลบสินค้า
         removeFromCart: (state, action) => {
@@ -37,19 +64,22 @@ const cartSlice = createSlice({
                 (x) => x._id !== action.payload,
             )
 
-            // อย่าลืม!!!! เอาตะกร้าใหม่ไปทับของเดิมใน LocalStorage ด้วย
-            localStorage.setItem('cart', JSON.stringify(state))
+            return updateCart(state)
         },
         // เพิ่มฟังก์ชันจดจำที่อยู่จัดส่งตรงนี้ครับ
         saveShippingAddress: (state, action) => {
             state.shippingAddress = action.payload
-            // เซฟลง LocalStorage ด้วย จะได้ไม่หายตอนรีเฟรช
-            localStorage.setItem('cart', JSON.stringify(state))
+            return updateCart(state)
         },
         // เพิ่มฟังก์ชันจดจำวิธีชำระเงินตรงนี้
         savePaymentMethod: (state, action) => {
             state.paymentMethod = action.payload
-            localStorage.setItem('cart', JSON.stringify(state))
+            return updateCart(state)
+        },
+        clearCartItems: (state) => {
+            state.cartItems = [] // เคลียร์สินค้าใน State
+            // อัปเดตราคาทั้งหมดให้เป็น 0 (ใช้ฟังก์ชัน updateCart ที่คุณอ๋องมีอยู่แล้ว)
+            return updateCart(state)
         },
     },
 })
@@ -61,6 +91,7 @@ export const {
     removeFromCart,
     saveShippingAddress,
     savePaymentMethod,
+    clearCartItems,
 } = cartSlice.actions
 
 // ส่งออกตัวลิ้นชัก ไปเสียบในโกดังใหญ่
