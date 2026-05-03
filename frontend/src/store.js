@@ -1,12 +1,17 @@
 import { configureStore } from '@reduxjs/toolkit'
-import cartSliceReducer from './slices/cartSlice' // 1. นำเข้าลิ้นชักตะกร้า
+import { apiSlice } from './slices/apiSlice' // นำเข้ายานแม่
+import cartSliceReducer from './slices/cartSlice'
+import authReducer from './slices/authSlice' // นำเข้าลิ้นชัก auth
 
 const store = configureStore({
     reducer: {
-        // เดี๋ยวเราจะเอา "ตะกร้าสินค้า" (Cart) มาเสียบปลั๊กตรงนี้
-        cart: cartSliceReducer, // 2. เสียบปลั๊ก! บอกว่าลิ้นชักชื่อ "cart" ให้ใช้ระบบของ cartSlice
+        [apiSlice.reducerPath]: apiSlice.reducer, // เพิ่ม reducer ของยานแม่
+        cart: cartSliceReducer,
+        auth: authReducer, // เพิ่มลิ้นชัก auth
     },
-    // devTools: process.env.NODE_ENV !== 'production',
+    // ต้องเพิ่ม middleware ของ apiSlice ด้วย เพื่อให้ระบบ Cache และ Fetching ทำงานได้สมบูรณ์
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware().concat(apiSlice.middleware),
     devTools: true,
 })
 
