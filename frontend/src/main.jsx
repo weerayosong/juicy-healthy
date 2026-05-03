@@ -12,11 +12,12 @@ import store from './store.js'
 
 import './index.css'
 import App from './App.jsx'
-import HomeScreen from './screens/HomeScreen.jsx'
-import ProductScreen from './screens/ProductScreen.jsx'
-import CartScreen from './screens/CartScreen.jsx'
-import LoginScreen from './screens/LoginScreen.jsx'
-import RegisterScreen from './screens/RegisterScreen.jsx'
+import HomeScreen from './screens/HomeScreen'
+import ProductScreen from './screens/ProductScreen'
+import CartScreen from './screens/CartScreen'
+import LoginScreen from './screens/LoginScreen'
+import RegisterScreen from './screens/RegisterScreen'
+import ProfileScreen from './screens/ProfileScreen.jsx'
 
 // สร้าง Router จำลองโครงสร้างไว้ก่อน เดี๋ยวเพิม route ตาม page-level components
 // ฝึกใช้แบบ data mode ไปเลย ถึงแม้ routes/route จะง่ายกว่าก็เถอะ
@@ -30,6 +31,7 @@ const router = createBrowserRouter(
             <Route path="/cart" element={<CartScreen />} />
             <Route path="/login" element={<LoginScreen />} />
             <Route path="/register" element={<RegisterScreen />} />
+            <Route path="/profile" element={<ProfileScreen />} />
         </Route>,
     ),
 )

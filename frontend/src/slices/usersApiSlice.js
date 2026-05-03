@@ -26,9 +26,20 @@ export const usersApiSlice = apiSlice.injectEndpoints({
                 body: data,
             }),
         }),
+        profile: builder.mutation({
+            query: (data) => ({
+                url: `${USERS_URL}/profile`, // ยิงไปที่ /api/users/profile
+                method: 'PUT',
+                body: data,
+            }),
+        }),
     }),
 })
 
 // RTK Query จะสร้าง Hook ให้เราอัตโนมัติ แค่เติม use...Mutation เข้าไป
-export const { useLoginMutation, useLogoutMutation, useRegisterMutation } =
-    usersApiSlice
+export const {
+    useLoginMutation,
+    useLogoutMutation,
+    useRegisterMutation,
+    useProfileMutation,
+} = usersApiSlice

@@ -33,10 +33,10 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
 }
 
 // ดักจับก่อนเซฟ (Pre-save hook): สับรหัสผ่านให้แหลกก่อนเอาลง Database
-userSchema.pre('save', async function (next) {
+userSchema.pre('save', async function () {
     // ถ้าไม่ได้มีการแก้ไขรหัสผ่าน (เช่น แค่เปลี่ยนชื่อ) ก็ให้ข้ามขั้นตอนนี้ไปเลย
     if (!this.isModified('password')) {
-        next()
+        return
     }
 
     // สร้างค่าเกลือ (Salt) ความเข้มข้นระดับ 10 แล้วเอามารวมกับรหัสผ่านเพื่อเข้ารหัส

@@ -78,9 +78,11 @@ const registerUser = asyncHandler(async (req, res) => {
     }
 })
 
+// ==========================================
 // @desc    ออกจากระบบ (Logout user / clear cookie)
 // @route   POST /api/users/logout
 // @access  Private
+// ==========================================
 const logoutUser = asyncHandler(async (req, res) => {
     // เอาคุกกี้ชื่อ 'jwt' มาเขียนทับด้วยค่าว่างๆ ('')
     // และตั้งเวลาหมดอายุ (expires) เป็น 0 เพื่อให้เบราว์เซอร์ลบทิ้งทันที
@@ -92,22 +94,65 @@ const logoutUser = asyncHandler(async (req, res) => {
     res.status(200).json({ message: 'ออกจากระบบสำเร็จ ลาก่อนคุกกี้!' })
 })
 
+// ==========================================
 // @desc    ดูข้อมูลโปรไฟล์ตัวเอง (Get user profile)
 // @route   GET /api/users/profile
 // @access  Private
+// ==========================================
 const getUserProfile = asyncHandler(async (req, res) => {
-    res.send('ข้อมูลโปรไฟล์ (เดี๋ยวมาเขียนต่อ)')
-})
+    // หา User จาก ID ที่แนบมากับ Token
+    const user = await User.findById(req.user._id)
 
-// @desc    แก้ไขข้อมูลโปรไฟล์ตัวเอง (Update user profile)
-// @route   PUT /api/users/profile
-// @access  Private
-const updateUserProfile = asyncHandler(async (req, res) => {
-    res.send('อัปเดตโปรไฟล์สำเร็จ (เดี๋ยวมาเขียนต่อ)')
+    if (user) {
+        res.status(200).json({
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            isAdmin: user.isAdmin,
+        })
+    } else {
+        res.status(404)
+        throw new Error('ไม่พบข้อมูลผู้ใช้')
+    }
 })
 
 // ==========================================
+// @desc    แก้ไขข้อมูลโปรไฟล์ตัวเอง (Update user profile)
+// @route   PUT /api/users/profile
+// @access  Private
+// ==========================================
+const updateUserProfile = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.user._id)
+
+    if (user) {
+        // อัปเดตข้อมูล (ถ้าไม่ได้พิมพ์ของใหม่มา ให้ใช้ข้อมูลเดิม)
+        user.name = req.body.name || user.name
+        user.email = req.body.email || user.email
+
+        // ถ้ายูสเซอร์กรอกรหัสผ่านใหม่มาด้วย ถึงจะอัปเดตรหัสผ่าน
+        if (req.body.password) {
+            user.password = req.body.password
+        }
+
+        const updatedUser = await user.save()
+
+        // ส่งกลับเป็น JSON เพื่อให้หน้าบ้านเอาไปอัปเดต "ลิ้นชัก" Redux ได้
+        res.status(200).json({
+            _id: updatedUser._id,
+            name: updatedUser.name,
+            email: updatedUser.email,
+            isAdmin: updatedUser.isAdmin,
+        })
+    } else {
+        res.status(404)
+        throw new Error('ไม่พบข้อมูลผู้ใช้')
+    }
+})
+
+// ==========================================
+// ==========================================
 // 😈 โซนของ Admin (ผู้ดูแลระบบ) 😈
+// ==========================================
 // ==========================================
 
 // @desc    ดูรายชื่อผู้ใช้ทั้งหมด (Get users)
