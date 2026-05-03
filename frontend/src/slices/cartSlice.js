@@ -4,7 +4,7 @@ import { createSlice } from '@reduxjs/toolkit'
 // ความเจ๋งคือเราดักเช็ค LocalStorage ไว้เลย! เวลากด F5 รีเฟรชหน้าเว็บ ของในตะกร้าจะได้ไม่หาย
 const initialState = localStorage.getItem('cart')
     ? JSON.parse(localStorage.getItem('cart'))
-    : { cartItems: [] }
+    : { cartItems: [], shippingAddress: {} }
 
 const cartSlice = createSlice({
     name: 'cart', // ชื่อลิ้นชัก
@@ -40,12 +40,28 @@ const cartSlice = createSlice({
             // อย่าลืม!!!! เอาตะกร้าใหม่ไปทับของเดิมใน LocalStorage ด้วย
             localStorage.setItem('cart', JSON.stringify(state))
         },
+        // เพิ่มฟังก์ชันจดจำที่อยู่จัดส่งตรงนี้ครับ
+        saveShippingAddress: (state, action) => {
+            state.shippingAddress = action.payload
+            // เซฟลง LocalStorage ด้วย จะได้ไม่หายตอนรีเฟรช
+            localStorage.setItem('cart', JSON.stringify(state))
+        },
+        // เพิ่มฟังก์ชันจดจำวิธีชำระเงินตรงนี้
+        savePaymentMethod: (state, action) => {
+            state.paymentMethod = action.payload
+            localStorage.setItem('cart', JSON.stringify(state))
+        },
     },
 })
 
 // ส่งออกแอคชัน (ฟังก์ชัน) ไปให้ไฟล์อื่นกดเรียกใช้
-// อย่าลืม Export ตัว removeFromCart ออกมาด้วย
-export const { addToCart, removeFromCart } = cartSlice.actions
+// อย่าลืม Export
+export const {
+    addToCart,
+    removeFromCart,
+    saveShippingAddress,
+    savePaymentMethod,
+} = cartSlice.actions
 
 // ส่งออกตัวลิ้นชัก ไปเสียบในโกดังใหญ่
 export default cartSlice.reducer
