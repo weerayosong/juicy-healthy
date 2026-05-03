@@ -1,11 +1,34 @@
 import asyncHandler from '../middleware/asyncHandler.js'
 import User from '../models/userModel.js'
+import generateToken from '../utils/generateToken.js' // นำเข้าโรงงานผลิต Token
 
 // @desc    เข้าสู่ระบบ (Auth user & get token)
-// @route   POST /api/users/login
+// @route   POST /api/users/auth
 // @access  Public
 const authUser = asyncHandler(async (req, res) => {
-    res.send('ล็อกอินสำเร็จ (เดี๋ยวมาเขียนต่อ)')
+    // 1. รับ Email และ Password ที่ลูกค้ากรอกเข้ามาจากหน้าเว็บ
+    const { email, password } = req.body
+
+    // 2. เดินไปหาใน Database ว่ามี Email นี้ไหม?
+    const user = await User.findOne({ email })
+
+    // 3. ถ้าเจออีเมล และ รหัสผ่านตรงกัน (เราเรียกใช้ฟังก์ชัน matchPassword จาก Model ที่เคยสร้างไว้)
+    if (user && (await user.matchPassword(password))) {
+        // 4. สั่งสร้าง Token และฝังลงใน Cookie
+        generateToken(res, user._id)
+
+        // 5. ส่งข้อมูลพื้นฐานกลับไปให้หน้าบ้าน (แต่ไม่ส่งรหัสผ่านไปนะ!)
+        res.status(200).json({
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            isAdmin: user.isAdmin,
+        })
+    } else {
+        // ถ้าอีเมลไม่มี หรือ รหัสผิด ให้เตะออก
+        res.status(401)
+        throw new Error('อีเมลหรือรหัสผ่านไม่ถูกต้อง')
+    }
 })
 
 // @desc    สมัครสมาชิก (Register user)
