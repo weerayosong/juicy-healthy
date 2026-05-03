@@ -15,7 +15,7 @@ import App from './App.jsx'
 import HomeScreen from './screens/HomeScreen.jsx'
 import ProductScreen from './screens/ProductScreen.jsx'
 import CartScreen from './screens/CartScreen.jsx'
-import LoginScreen from './screens/LoginScreen'
+import LoginScreen from './screens/LoginScreen.jsx'
 import RegisterScreen from './screens/RegisterScreen.jsx'
 
 // สร้าง Router จำลองโครงสร้างไว้ก่อน เดี๋ยวเพิม route ตาม page-level components
