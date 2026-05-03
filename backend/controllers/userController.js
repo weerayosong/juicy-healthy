@@ -35,11 +35,47 @@ const authUser = asyncHandler(async (req, res) => {
     }
 })
 
+// ==========================================
 // @desc    สมัครสมาชิก (Register user)
 // @route   POST /api/users
 // @access  Public
+// ==========================================
 const registerUser = asyncHandler(async (req, res) => {
-    res.send('สมัครสมาชิกสำเร็จ (เดี๋ยวมาเขียนต่อ)')
+    // 1. รับข้อมูลที่ลูกค้ากรอกมา (ชื่อ, อีเมล, รหัสผ่าน)
+    const { name, email, password } = req.body
+
+    // 2. เช็คก่อนว่ามีใครใช้อีเมลนี้ไปหรือยัง?
+    const userExists = await User.findOne({ email })
+
+    if (userExists) {
+        res.status(400) // 400 Bad Request
+        throw new Error('อีเมลนี้ถูกใช้งานแล้ว')
+    }
+
+    // 3. ถ้าอีเมลว่าง ก็สร้างบัญชีใหม่เลย! (รหัสผ่านจะถูกเข้ารหัสอัตโนมัติจากไฟล์ userModel)
+    const user = await User.create({
+        name,
+        email,
+        password,
+    })
+
+    // 4. ถ้าสร้างสำเร็จ
+    if (user) {
+        // ออกบัตรผ่าน JWT ให้เลย สมัครปุ๊บ ล็อกอินให้ปั๊บ!
+        generateToken(res, user._id)
+
+        res.status(201).json({
+            // 201 Created
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            isAdmin: user.isAdmin,
+        })
+    } else {
+        // ถ้ามีปัญหาตอนบันทึก
+        res.status(400)
+        throw new Error('ข้อมูลผู้ใช้ไม่ถูกต้อง')
+    }
 })
 
 // @desc    ออกจากระบบ (Logout user / clear cookie)
