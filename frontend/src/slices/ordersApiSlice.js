@@ -10,12 +10,14 @@ export const ordersApiSlice = apiSlice.injectEndpoints({
                 body: { ...order },
             }),
         }),
+
         getOrderDetails: builder.query({
             query: (id) => ({
                 url: `${ORDERS_URL}/${id}`,
             }),
             keepUnusedDataFor: 5,
         }),
+
         // เพื่อดึง PayPal Client ID จาก Backend
         getPayPalClientId: builder.query({
             query: () => ({
@@ -38,6 +40,22 @@ export const ordersApiSlice = apiSlice.injectEndpoints({
             }),
             keepUnusedDataFor: 5,
         }),
+
+        // สำหรับ Admin: ดึงออเดอร์ทั้งหมด
+        getOrders: builder.query({
+            query: () => ({
+                url: ORDERS_URL,
+            }),
+            keepUnusedDataFor: 5,
+        }),
+
+        // สำหรับ Admin: อัปเดตสถานะว่าจัดส่งแล้ว
+        deliverOrder: builder.mutation({
+            query: (orderId) => ({
+                url: `${ORDERS_URL}/${orderId}/deliver`,
+                method: 'PUT',
+            }),
+        }),
     }),
 })
 
@@ -47,4 +65,6 @@ export const {
     useGetPayPalClientIdQuery,
     usePayOrderMutation,
     useGetMyOrdersQuery,
+    useGetOrdersQuery,
+    useDeliverOrderMutation,
 } = ordersApiSlice

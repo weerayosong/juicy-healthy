@@ -5,16 +5,20 @@ import {
     getOrderById,
     updateOrderToPaid,
     getMyOrders,
+    getOrders, // นำเข้าฟังก์ชันของ Admin
+    updateOrderToDelivered, // นำเข้าฟังก์ชันของ Admin
 } from '../controllers/orderController.js'
-import { protect } from '../middleware/authMiddleware.js'
+import { protect, admin } from '../middleware/authMiddleware.js' // อย่าลืม import admin มาด้วย
 
-router.route('/').post(protect, addOrderItems)
+// ปรับ Route '/' ให้รับ GET requests จาก Admin ได้ด้วย
+router.route('/').post(protect, addOrderItems).get(protect, admin, getOrders)
 
-// วาง /mine ไว้ตรงนี้ (ต้องอยู่บน /:id)
 router.route('/mine').get(protect, getMyOrders)
-
 router.route('/:id').get(protect, getOrderById)
 router.route('/:id/pay').put(protect, updateOrderToPaid)
+
+// เพิ่ม Route สำหรับอัปเดตสถานะจัดส่ง (Admin Only)
+router.route('/:id/deliver').put(protect, admin, updateOrderToDelivered)
 
 export default router
 

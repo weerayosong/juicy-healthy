@@ -22,6 +22,10 @@ import ShippingScreen from './screens/ShippingScreen'
 import PaymentScreen from './screens/PaymentScreen'
 import PlaceOrderScreen from './screens/PlaceOrderScreen'
 import OrderScreen from './screens/OrderScreen'
+import OrderListScreen from './screens/admin/OrderListScreen'
+
+import PrivateRoute from './components/PrivateRoute'
+import AdminRoute from './components/AdminRoute'
 
 import { PayPalScriptProvider } from '@paypal/react-paypal-js'
 
@@ -30,18 +34,26 @@ import { PayPalScriptProvider } from '@paypal/react-paypal-js'
 const router = createBrowserRouter(
     createRoutesFromElements(
         <Route path="/" element={<App />}>
-            {/* หน้าแรก (Index) ให้แสดง HomeScreen */}
+            {/* 🟢 โซนทั่วไป: ใครก็เข้าได้ */}
             <Route index={true} path="/" element={<HomeScreen />} />
-            {/* หน้าสินค้า ให้แสดง ProductScreen และรับพารามิเตอร์ชื่อ id */}
             <Route path="/product/:id" element={<ProductScreen />} />
             <Route path="/cart" element={<CartScreen />} />
             <Route path="/login" element={<LoginScreen />} />
             <Route path="/register" element={<RegisterScreen />} />
-            <Route path="/profile" element={<ProfileScreen />} />
-            <Route path="/shipping" element={<ShippingScreen />} />
-            <Route path="/payment" element={<PaymentScreen />} />
-            <Route path="/placeorder" element={<PlaceOrderScreen />} />
-            <Route path="/order/:id" element={<OrderScreen />} />
+
+            {/* 🟡 โซนสมาชิก: ต้องผ่านด่าน PrivateRoute ก่อน */}
+            <Route path="" element={<PrivateRoute />}>
+                <Route path="/profile" element={<ProfileScreen />} />
+                <Route path="/shipping" element={<ShippingScreen />} />
+                <Route path="/payment" element={<PaymentScreen />} />
+                <Route path="/placeorder" element={<PlaceOrderScreen />} />
+                <Route path="/order/:id" element={<OrderScreen />} />
+            </Route>
+
+            {/* 🔴 โซนผู้ดูแลระบบ: ต้องผ่านด่าน AdminRoute ก่อน */}
+            <Route path="" element={<AdminRoute />}>
+                <Route path="/admin/orderlist" element={<OrderListScreen />} />
+            </Route>
         </Route>,
     ),
 )
