@@ -85,5 +85,14 @@ const updateOrderToPaid = asyncHandler(async (req, res) => {
     }
 })
 
+// @desc    Get logged in user orders
+// @route   GET /api/orders/mine
+// @access  Private
+const getMyOrders = asyncHandler(async (req, res) => {
+    // หาออเดอร์ทั้งหมดที่เป็นของ user คนนี้
+    const orders = await Order.find({ user: req.user._id })
+    res.status(200).json(orders)
+})
+
 // อย่าลืมเพิ่ม updateOrderToPaid
-export { addOrderItems, getOrderById, updateOrderToPaid }
+export { addOrderItems, getOrderById, updateOrderToPaid, getMyOrders }
