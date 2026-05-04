@@ -23,6 +23,8 @@ import PaymentScreen from './screens/PaymentScreen'
 import PlaceOrderScreen from './screens/PlaceOrderScreen'
 import OrderScreen from './screens/OrderScreen'
 
+import { PayPalScriptProvider } from '@paypal/react-paypal-js'
+
 // สร้าง Router จำลองโครงสร้างไว้ก่อน เดี๋ยวเพิม route ตาม page-level components
 // ฝึกใช้แบบ data mode ไปเลย ถึงแม้ routes/route จะง่ายกว่าก็เถอะ
 const router = createBrowserRouter(
@@ -48,9 +50,12 @@ const router = createBrowserRouter(
 
 ReactDOM.createRoot(document.getElementById('root')).render(
     <StrictMode>
-        {/* เอา Provider มาคลุม RouterProvider ไว้ และโยน store เข้าไป */}
         <Provider store={store}>
-            <RouterProvider router={router} />
+            {/* หุ้ม RouterProvider ด้วย PayPalScriptProvider */}
+            {/* deferLoading={true} หมายถึงยังไม่ต้องโหลดจนกว่าเราจะสั่ง เพื่อประหยัดทรัพยากรครับ */}
+            <PayPalScriptProvider deferLoading={true}>
+                <RouterProvider router={router} />
+            </PayPalScriptProvider>
         </Provider>
     </StrictMode>,
 )

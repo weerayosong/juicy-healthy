@@ -1,17 +1,64 @@
+import { useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useSelector } from 'react-redux'
-import { useGetOrderDetailsQuery } from '../slices/ordersApiSlice'
 import Message from '../components/Message'
 import Loader from '../components/Loader'
+
+import { PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js'
+import {
+    useGetOrderDetailsQuery,
+    useGetPayPalClientIdQuery,
+    usePayOrderMutation,
+} from '../slices/ordersApiSlice'
+import { toast } from 'react-toastify'
 
 const OrderScreen = () => {
     const { id: orderId } = useParams()
     const { userInfo } = useSelector((state) => state.auth)
 
-    const { data: order, isLoading, error } = useGetOrderDetailsQuery(orderId)
+    // 1. ดึงข้อมูลออเดอร์
+    const {
+        data: order,
+        isLoading,
+        error,
+        refetch,
+    } = useGetOrderDetailsQuery(orderId)
 
+    // 2. Hook สำหรับจัดการการจ่ายเงิน
+    const [payOrder, { isLoading: loadingPay }] = usePayOrderMutation()
+
+    // 3. Hook สำหรับจัดการ PayPal Script
+    const [{ isPending }, paypalDispatch] = usePayPalScriptReducer()
+
+    // 4. ดึง Client ID จาก Backend
+    const {
+        data: paypal,
+        isLoading: loadingPayPal,
+        error: errorPayPal,
+    } = useGetPayPalClientIdQuery()
+
+    useEffect(() => {
+        if (!errorPayPal && !loadingPayPal && paypal.clientId) {
+            const loadPayPalScript = async () => {
+                paypalDispatch({
+                    type: 'resetOptions',
+                    value: {
+                        'client-id': paypal.clientId,
+                        currency: 'THB',
+                    },
+                })
+                paypalDispatch({ type: 'setLoadingStatus', value: 'pending' })
+            }
+            if (order && !order.isPaid) {
+                if (!window.paypal) {
+                    loadPayPalScript()
+                }
+            }
+        }
+    }, [order, paypal, paypalDispatch, loadingPayPal, errorPayPal])
+
+    // ตรวจสอบสิทธิ์การเข้าถึง
     if (!isLoading && !error && order && userInfo) {
-        // ถ้าไม่ใช่เจ้าของออเดอร์ และไม่ใช่ Admin ให้แสดงข้อความเตือน
         if (order.user._id !== userInfo._id && !userInfo.isAdmin) {
             return (
                 <Message variant="danger">
@@ -21,6 +68,25 @@ const OrderScreen = () => {
         }
     }
 
+    // ฟังก์ชันเมื่อชำระเงินสำเร็จ
+    const onApprove = (data, actions) => {
+        return actions.order.capture().then(async function (details) {
+            try {
+                await payOrder({ orderId, details })
+                refetch() // ดึงข้อมูลใหม่เพื่อให้สถานะเปลี่ยนเป็น "Paid"
+                toast.success('ชำระเงินสำเร็จ!')
+            } catch (err) {
+                toast.error(err?.data?.message || err.error)
+            }
+        })
+    }
+
+    // ฟังก์ชันเมื่อเกิดข้อผิดพลาด
+    const onError = (err) => {
+        toast.error(err.message)
+    }
+
+    // ฟังก์ชันช่วยจัดการทศนิยม 2 ตำแหน่ง
     const addDecimals = (num) => {
         return (Math.round(num * 100) / 100).toFixed(2)
     }
@@ -41,9 +107,8 @@ const OrderScreen = () => {
             </h1>
 
             <div className="grid md:grid-cols-3 gap-8">
-                {/* ฝั่งซ้าย: ข้อมูลลูกค้าและรายการสินค้า */}
                 <div className="md:col-span-2 space-y-6">
-                    {/* 1. ข้อมูลการจัดส่ง */}
+                    {/* ข้อมูลการจัดส่ง */}
                     <div className="border-b pb-6">
                         <h2 className="text-xl font-semibold mb-3 uppercase">
                             Shipping
@@ -69,7 +134,7 @@ const OrderScreen = () => {
                         )}
                     </div>
 
-                    {/* 2. วิธีชำระเงิน */}
+                    {/* วิธีชำระเงิน */}
                     <div className="border-b pb-6">
                         <h2 className="text-xl font-semibold mb-3 uppercase">
                             Payment Method
@@ -86,7 +151,7 @@ const OrderScreen = () => {
                         )}
                     </div>
 
-                    {/* 3. รายการสินค้า */}
+                    {/* รายการสินค้า */}
                     <div>
                         <h2 className="text-xl font-semibold mb-4 uppercase">
                             Order Items
@@ -125,7 +190,7 @@ const OrderScreen = () => {
                     </div>
                 </div>
 
-                {/* ฝั่งขวา: สรุปราคาทั้งหมด */}
+                {/* สรุปราคาทั้งหมด */}
                 <div className="h-fit">
                     <div className="border border-gray-100 p-6 rounded-sm shadow-sm bg-white">
                         <h2 className="text-xl font-semibold mb-6 text-center uppercase tracking-widest border-b pb-4">
@@ -134,15 +199,15 @@ const OrderScreen = () => {
                         <div className="space-y-3 text-gray-600">
                             <div className="flex justify-between">
                                 <span>Items</span>
-                                <span>{order.itemsPrice}฿</span>
+                                <span>{addDecimals(order.itemsPrice)}฿</span>
                             </div>
                             <div className="flex justify-between">
                                 <span>Shipping</span>
-                                <span>{order.shippingPrice}฿</span>
+                                <span>{addDecimals(order.shippingPrice)}฿</span>
                             </div>
                             <div className="flex justify-between">
                                 <span>Tax (7%)</span>
-                                <span>{order.taxPrice}฿</span>
+                                <span>{addDecimals(order.taxPrice)}฿</span>
                             </div>
                             <div className="flex justify-between font-bold text-xl text-black border-t pt-4 mt-4">
                                 <span>Total</span>
@@ -150,7 +215,33 @@ const OrderScreen = () => {
                             </div>
                         </div>
 
-                        {/* ปุ่มชำระเงิน (เฟสถัดไป) จะมาวางตรงนี้ครับ */}
+                        {/* แสดงปุ่ม PayPal ถ้ายังไม่ได้จ่าย */}
+                        {!order.isPaid && (
+                            <div className="mt-4">
+                                {loadingPay && <Loader />}
+                                {isPending ? (
+                                    <Loader />
+                                ) : (
+                                    <div>
+                                        <PayPalButtons
+                                            createOrder={(data, actions) => {
+                                                return actions.order.create({
+                                                    purchase_units: [
+                                                        {
+                                                            amount: {
+                                                                value: order.totalPrice,
+                                                            },
+                                                        },
+                                                    ],
+                                                })
+                                            }}
+                                            onApprove={onApprove}
+                                            onError={onError}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

@@ -25,6 +25,10 @@ app.get('/', (req, res) => {
     res.send('Juicy Healthy API is running...')
 })
 
+app.get('/api/config/paypal', (req, res) =>
+    res.send({ clientId: process.env.PAYPAL_CLIENT_ID }),
+)
+
 // บอกให้ Express 'useใช้งาน' productRoutes เมื่อเรียก URL ที่ขึ้นต้นด้วย /api/products
 app.use('/api/products', productRoutes)
 app.use('/api/users', userRoutes) // เปิดใช้เส้น ยูเซอร์ ด้วย
