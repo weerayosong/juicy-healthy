@@ -31,6 +31,7 @@ const PlaceOrderScreen = () => {
                 paymentMethod: cart.paymentMethod,
                 itemsPrice: cart.itemsPrice,
                 shippingPrice: cart.shippingPrice,
+                taxPrice: cart.taxPrice,
                 totalPrice: cart.totalPrice,
             }).unwrap()
 
@@ -39,6 +40,10 @@ const PlaceOrderScreen = () => {
         } catch (err) {
             toast.error(err?.data?.message || err.error)
         }
+    }
+
+    const addDecimals = (num) => {
+        return (Math.round(num * 100) / 100).toFixed(2)
     }
 
     return (
@@ -121,9 +126,13 @@ const PlaceOrderScreen = () => {
                             <span>ค่าจัดส่ง:</span>
                             <span>{cart.shippingPrice}฿</span>
                         </div>
+                        <div className="flex justify-between">
+                            <span>ภาษี (VAT 7%):</span>
+                            <span>{cart.taxPrice}฿</span>
+                        </div>
                         <div className="flex justify-between font-bold text-lg border-t pt-2 mt-2">
                             <span>ยอดชำระสุทธิ:</span>
-                            <span>{cart.totalPrice}฿</span>
+                            <span>{addDecimals(cart.totalPrice)}฿</span>
                         </div>
                     </div>
                     <button

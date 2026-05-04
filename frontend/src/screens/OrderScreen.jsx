@@ -21,6 +21,10 @@ const OrderScreen = () => {
         }
     }
 
+    const addDecimals = (num) => {
+        return (Math.round(num * 100) / 100).toFixed(2)
+    }
+
     return isLoading ? (
         <Loader />
     ) : error ? (
@@ -142,7 +146,7 @@ const OrderScreen = () => {
                             </div>
                             <div className="flex justify-between font-bold text-xl text-black border-t pt-4 mt-4">
                                 <span>Total</span>
-                                <span>{order.totalPrice}฿</span>
+                                <span>{addDecimals(order.totalPrice)}฿</span>
                             </div>
                         </div>
 
