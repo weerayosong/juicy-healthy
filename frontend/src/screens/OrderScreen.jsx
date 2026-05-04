@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import Message from '../components/Message'
 import Loader from '../components/Loader'
+import { toast } from 'react-toastify'
 
 import { PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js'
 import {
@@ -10,13 +11,12 @@ import {
     useGetPayPalClientIdQuery,
     usePayOrderMutation,
 } from '../slices/ordersApiSlice'
-import { toast } from 'react-toastify'
 
 const OrderScreen = () => {
     const { id: orderId } = useParams()
     const { userInfo } = useSelector((state) => state.auth)
 
-    // 1. ดึงข้อมูลออเดอร์
+    // ดึงข้อมูลออเดอร์
     const {
         data: order,
         isLoading,
@@ -24,13 +24,13 @@ const OrderScreen = () => {
         refetch,
     } = useGetOrderDetailsQuery(orderId)
 
-    // 2. Hook สำหรับจัดการการจ่ายเงิน
+    // Mutation สำหรับอัปเดตสถานะการจ่ายเงิน
     const [payOrder, { isLoading: loadingPay }] = usePayOrderMutation()
 
-    // 3. Hook สำหรับจัดการ PayPal Script
+    // PayPal Reducer
     const [{ isPending }, paypalDispatch] = usePayPalScriptReducer()
 
-    // 4. ดึง Client ID จาก Backend
+    // ดึง Client ID
     const {
         data: paypal,
         isLoading: loadingPayPal,
@@ -44,7 +44,7 @@ const OrderScreen = () => {
                     type: 'resetOptions',
                     value: {
                         'client-id': paypal.clientId,
-                        currency: 'THB',
+                        currency: 'USD',
                     },
                 })
                 paypalDispatch({ type: 'setLoadingStatus', value: 'pending' })
@@ -57,7 +57,44 @@ const OrderScreen = () => {
         }
     }, [order, paypal, paypalDispatch, loadingPayPal, errorPayPal])
 
-    // ตรวจสอบสิทธิ์การเข้าถึง
+    // ฟังก์ชันสร้างคำสั่งซื้อส่งให้ PayPal
+    const createOrder = (data, actions) => {
+        return actions.order.create({
+            intent: 'CAPTURE', // ย้ำเป้าหมายให้ชัดเจนว่าต้องการตัดเงิน
+            purchase_units: [
+                {
+                    amount: {
+                        currency_code: 'USD', // ต้องใส่ให้ตรงกับตอน resetOptions เสมอ
+                        value: String(order.totalPrice),
+                    },
+                },
+            ],
+        })
+    }
+
+    // ฟังก์ชันเมื่อชำระเงินสำเร็จ
+    const onApprove = (data, actions) => {
+        return actions.order.capture().then(async function (details) {
+            try {
+                // ส่ง details ไปให้ Backend อัปเดต DB
+                await payOrder({ orderId, details }).unwrap()
+                refetch()
+                toast.success('ชำระเงินสำเร็จ!')
+            } catch (err) {
+                toast.error(err?.data?.message || err.error)
+            }
+        })
+    }
+
+    const onError = (err) => {
+        toast.error(err.message)
+    }
+
+    const addDecimals = (num) => {
+        return (Math.round(num * 100) / 100).toFixed(2)
+    }
+
+    // ตรวจสอบสิทธิ์
     if (!isLoading && !error && order && userInfo) {
         if (order.user._id !== userInfo._id && !userInfo.isAdmin) {
             return (
@@ -66,29 +103,6 @@ const OrderScreen = () => {
                 </Message>
             )
         }
-    }
-
-    // ฟังก์ชันเมื่อชำระเงินสำเร็จ
-    const onApprove = (data, actions) => {
-        return actions.order.capture().then(async function (details) {
-            try {
-                await payOrder({ orderId, details })
-                refetch() // ดึงข้อมูลใหม่เพื่อให้สถานะเปลี่ยนเป็น "Paid"
-                toast.success('ชำระเงินสำเร็จ!')
-            } catch (err) {
-                toast.error(err?.data?.message || err.error)
-            }
-        })
-    }
-
-    // ฟังก์ชันเมื่อเกิดข้อผิดพลาด
-    const onError = (err) => {
-        toast.error(err.message)
-    }
-
-    // ฟังก์ชันช่วยจัดการทศนิยม 2 ตำแหน่ง
-    const addDecimals = (num) => {
-        return (Math.round(num * 100) / 100).toFixed(2)
     }
 
     return isLoading ? (
@@ -144,7 +158,7 @@ const OrderScreen = () => {
                         </p>
                         {order.isPaid ? (
                             <Message variant="success">
-                                Paid on {order.paidAt}
+                                Paid on {order.paidAt.substring(0, 10)}
                             </Message>
                         ) : (
                             <Message variant="danger">Not Paid</Message>
@@ -224,17 +238,7 @@ const OrderScreen = () => {
                                 ) : (
                                     <div>
                                         <PayPalButtons
-                                            createOrder={(data, actions) => {
-                                                return actions.order.create({
-                                                    purchase_units: [
-                                                        {
-                                                            amount: {
-                                                                value: order.totalPrice,
-                                                            },
-                                                        },
-                                                    ],
-                                                })
-                                            }}
+                                            createOrder={createOrder}
                                             onApprove={onApprove}
                                             onError={onError}
                                         />

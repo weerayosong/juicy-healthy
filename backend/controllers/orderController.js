@@ -56,4 +56,34 @@ const getOrderById = asyncHandler(async (req, res) => {
     }
 })
 
-export { addOrderItems, getOrderById } // Export เพิ่มเข้ามา
+// @desc    Update order to paid
+// @route   PUT /api/orders/:id/pay
+// @access  Private
+const updateOrderToPaid = asyncHandler(async (req, res) => {
+    // 1. หาออเดอร์จาก Database
+    const order = await Order.findById(req.params.id)
+
+    if (order) {
+        // 2. อัปเดตสถานะว่าจ่ายแล้ว
+        order.isPaid = true
+        order.paidAt = Date.now()
+
+        // 3. เก็บหลักฐานการจ่ายเงินจาก PayPal (ที่ FE ส่งมาให้)
+        order.paymentResult = {
+            id: req.body.id,
+            status: req.body.status,
+            update_time: req.body.update_time,
+            email_address: req.body.payer.email_address,
+        }
+
+        // 4. บันทึกลง Database
+        const updatedOrder = await order.save()
+        res.status(200).json(updatedOrder)
+    } else {
+        res.status(404)
+        throw new Error('Order not found')
+    }
+})
+
+// อย่าลืมเพิ่ม updateOrderToPaid
+export { addOrderItems, getOrderById, updateOrderToPaid }
