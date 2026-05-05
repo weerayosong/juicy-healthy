@@ -22,7 +22,10 @@ import ShippingScreen from './screens/ShippingScreen'
 import PaymentScreen from './screens/PaymentScreen'
 import PlaceOrderScreen from './screens/PlaceOrderScreen'
 import OrderScreen from './screens/OrderScreen'
+
 import OrderListScreen from './screens/admin/OrderListScreen'
+import UserListScreen from './screens/admin/UserListScreen'
+import UserEditScreen from './screens/admin/UserEditScreen'
 
 import PrivateRoute from './components/PrivateRoute'
 import AdminRoute from './components/AdminRoute'
@@ -53,6 +56,11 @@ const router = createBrowserRouter(
             {/* 🔴 โซนผู้ดูแลระบบ: ต้องผ่านด่าน AdminRoute ก่อน */}
             <Route path="" element={<AdminRoute />}>
                 <Route path="/admin/orderlist" element={<OrderListScreen />} />
+                <Route path="/admin/userlist" element={<UserListScreen />} />
+                <Route
+                    path="/admin/user/:id/edit"
+                    element={<UserEditScreen />}
+                />
             </Route>
         </Route>,
     ),

@@ -33,6 +33,34 @@ export const usersApiSlice = apiSlice.injectEndpoints({
                 body: data,
             }),
         }),
+        getUsers: builder.query({
+            query: () => ({
+                url: USERS_URL,
+            }),
+            providesTags: ['User'], // ให้ Redux รู้จักแท็กนี้ จะได้สั่ง Refetch ง่ายๆ
+            keepUnusedDataFor: 5,
+        }),
+        deleteUser: builder.mutation({
+            query: (userId) => ({
+                url: `${USERS_URL}/${userId}`,
+                method: 'DELETE',
+            }),
+        }),
+        getUserDetails: builder.query({
+            query: (userId) => ({
+                url: `${USERS_URL}/${userId}`,
+            }),
+            keepUnusedDataFor: 5,
+        }),
+        updateUser: builder.mutation({
+            query: (data) => ({
+                url: `${USERS_URL}/${data.userId}`,
+                method: 'PUT',
+                body: data,
+            }),
+            // คำสั่งนี้จะบอกให้ Redux รู้ว่า "ข้อมูล User เปลี่ยนแล้วนะ ให้ไปโหลดหน้าลิสต์มาใหม่ด้วย"
+            invalidatesTags: ['User'],
+        }),
     }),
 })
 
@@ -42,4 +70,8 @@ export const {
     useLogoutMutation,
     useRegisterMutation,
     useProfileMutation,
+    useGetUsersQuery,
+    useDeleteUserMutation,
+    useGetUserDetailsQuery,
+    useUpdateUserMutation,
 } = usersApiSlice

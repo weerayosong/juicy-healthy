@@ -155,32 +155,74 @@ const updateUserProfile = asyncHandler(async (req, res) => {
 // ==========================================
 // ==========================================
 
-// @desc    ดูรายชื่อผู้ใช้ทั้งหมด (Get users)
+// @desc    Get all users
 // @route   GET /api/users
 // @access  Private/Admin
 const getUsers = asyncHandler(async (req, res) => {
-    res.send('รายชื่อผู้ใช้ทั้งหมด (Admin)')
+    // ดึงข้อมูลผู้ใช้ทั้งหมดออกมา
+    const users = await User.find({})
+    res.status(200).json(users)
 })
 
-// @desc    ลบผู้ใช้ (Delete user)
+// @desc    Delete user
 // @route   DELETE /api/users/:id
 // @access  Private/Admin
 const deleteUser = asyncHandler(async (req, res) => {
-    res.send('ลบผู้ใช้สำเร็จ (Admin)')
+    const user = await User.findById(req.params.id)
+
+    if (user) {
+        // ดักไว้ก่อน: ห้ามแอดมินลบแอดมินด้วยกันเอง!
+        if (user.isAdmin) {
+            res.status(400)
+            throw new Error('ไม่สามารถลบผู้ดูแลระบบได้ครับ')
+        }
+        await User.deleteOne({ _id: user._id })
+        res.status(200).json({ message: 'ลบผู้ใช้สำเร็จ' })
+    } else {
+        res.status(404)
+        throw new Error('ไม่พบผู้ใช้รายนี้')
+    }
 })
 
-// @desc    ดูข้อมูลผู้ใช้ 1 คน (Get user by ID)
+// @desc    Get user by ID
 // @route   GET /api/users/:id
 // @access  Private/Admin
 const getUserById = asyncHandler(async (req, res) => {
-    res.send('ข้อมูลผู้ใช้ตาม ID (Admin)')
+    // ดึงข้อมูลผู้ใช้มา แต่ไม่เอารหัสผ่าน (-password) ส่งกลับไปให้แอดมินดู
+    const user = await User.findById(req.params.id).select('-password')
+
+    if (user) {
+        res.status(200).json(user)
+    } else {
+        res.status(404)
+        throw new Error('ไม่พบผู้ใช้งานรายนี้')
+    }
 })
 
-// @desc    แก้ไขข้อมูลผู้ใช้ (Update user)
+// @desc    Update user
 // @route   PUT /api/users/:id
 // @access  Private/Admin
 const updateUser = asyncHandler(async (req, res) => {
-    res.send('อัปเดตข้อมูลผู้ใช้สำเร็จ (Admin)')
+    const user = await User.findById(req.params.id)
+
+    if (user) {
+        user.name = req.body.name || user.name
+        user.email = req.body.email || user.email
+        // อัปเดตสถานะแอดมิน (ใช้ Boolean เพื่อแปลงค่าที่ส่งมาให้เป็น true/false ชัวร์ๆ)
+        user.isAdmin = Boolean(req.body.isAdmin)
+
+        const updatedUser = await user.save()
+
+        res.status(200).json({
+            _id: updatedUser._id,
+            name: updatedUser.name,
+            email: updatedUser.email,
+            isAdmin: updatedUser.isAdmin,
+        })
+    } else {
+        res.status(404)
+        throw new Error('ไม่พบผู้ใช้งานรายนี้')
+    }
 })
 
 export {
