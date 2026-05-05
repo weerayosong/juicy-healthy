@@ -1,20 +1,22 @@
 import { useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useSelector } from 'react-redux'
+import { toast } from 'react-toastify'
+
 import Message from '../components/Message'
 import Loader from '../components/Loader'
-import { toast } from 'react-toastify'
 
 import { PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js'
 import {
     useGetOrderDetailsQuery,
     useGetPayPalClientIdQuery,
     usePayOrderMutation,
+    useDeliverOrderMutation,
 } from '../slices/ordersApiSlice'
 
 const OrderScreen = () => {
     const { id: orderId } = useParams()
-    const { userInfo } = useSelector((state) => state.auth)
+    const { userInfo } = useSelector((state) => state.auth) // ดึงข้อมูล User ปัจจุบันจาก Redux ว่าเป็นใคร (ใช่แอดมินไหม)
 
     // ดึงข้อมูลออเดอร์
     const {
@@ -23,6 +25,10 @@ const OrderScreen = () => {
         error,
         refetch,
     } = useGetOrderDetailsQuery(orderId)
+
+    // เรียกใช้ฟังก์ชันอัปเดตสถานะจัดส่ง
+    const [deliverOrder, { isLoading: loadingDeliver }] =
+        useDeliverOrderMutation()
 
     // Mutation สำหรับอัปเดตสถานะการจ่ายเงิน
     const [payOrder, { isLoading: loadingPay }] = usePayOrderMutation()
@@ -102,6 +108,16 @@ const OrderScreen = () => {
                     คุณไม่มีสิทธิ์เข้าดูออเดอร์นี้
                 </Message>
             )
+        }
+    }
+
+    const deliverOrderHandler = async () => {
+        try {
+            await deliverOrder(orderId)
+            refetch() // 💡 สั่งโหลดข้อมูลออเดอร์ใหม่ เพื่อให้สถานะเปลี่ยนเป็นสีเขียวทันที
+            toast.success('อัปเดตสถานะการจัดส่งสำเร็จ! 🎉')
+        } catch (err) {
+            toast.error(err?.data?.message || err.message)
         }
     }
 
@@ -246,6 +262,24 @@ const OrderScreen = () => {
                                 )}
                             </div>
                         )}
+
+                        {/* 💡 ปุ่ม Mark as Delivered (สำหรับ Admin เท่านั้น) */}
+                        {loadingDeliver && <Loader />}
+
+                        {userInfo &&
+                            userInfo.isAdmin &&
+                            order.isPaid &&
+                            !order.isDelivered && (
+                                <li className="p-4 border-t border-gray-200 list-none">
+                                    <button
+                                        type="button"
+                                        className="w-full bg-black text-white font-medium py-3 rounded-sm hover:bg-secondary transition duration-300 shadow-sm"
+                                        onClick={deliverOrderHandler}
+                                    >
+                                        Mark as Delivered (จัดส่งสินค้าแล้ว)
+                                    </button>
+                                </li>
+                            )}
                     </div>
                 </div>
             </div>
