@@ -1,10 +1,14 @@
 import express from 'express'
 import dotenv from 'dotenv'
 import cookieParser from 'cookie-parser'
+import path from 'path' // ปกติ Node.js มีมาให้แล้ว นำเข้ามาใช้ได้เลย
+
 import connectDB from './config/db.js' // อย่าลืม!! ต้องใส่ .js เพราะระบุ "type": "module" ไว้
+
 import productRoutes from './routes/productRoutes.js'
 import userRoutes from './routes/userRoutes.js'
 import orderRoutes from './routes/orderRoutes.js'
+import uploadRoutes from './routes/uploadRoutes.js' // นำเข้า Route ที่เพิ่งสร้าง
 
 dotenv.config()
 
@@ -33,6 +37,11 @@ app.get('/api/config/paypal', (req, res) =>
 app.use('/api/products', productRoutes)
 app.use('/api/users', userRoutes) // เปิดใช้เส้น ยูเซอร์ ด้วย
 app.use('/api/orders', orderRoutes)
+app.use('/api/upload', uploadRoutes)
+
+// ตั้งค่าโฟลเดอร์ uploads ให้เป็น Static Folder (ทุกคนเข้าถึงไฟล์รูปได้)
+const __dirname = path.resolve()
+app.use('/uploads', express.static(path.join(__dirname, '/uploads')))
 
 app.listen(port, () => {
     console.log(
