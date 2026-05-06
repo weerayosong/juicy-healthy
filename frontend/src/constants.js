@@ -6,6 +6,7 @@ export const PRODUCTS_URL = '/api/products'
 export const USERS_URL = '/api/users'
 export const ORDERS_URL = '/api/orders'
 export const PAYPAL_URL = '/api/config/paypal'
+export const UPLOAD_URL = '/api/upload'
 
 // RTK Query (Redux Toolkit Query) เป็นเครื่องมือเสริมที่มาพร้อมกับ Redux Toolkit ครับ หน้าที่ของมันคือ "จัดการเรื่องการยิง API และแคช (Cache) ข้อมูล"
 // RTK Query เข้ามา "รวบตึง" ทุกอย่างนี้ให้เหลือแค่บรรทัดเดียวครับ! แถมยังฉลาดพอที่จะจำข้อมูลไว้ (Cache) ถ้าเปลี่ยนหน้าแล้วกลับมาหน้าเดิม มันจะไม่ยิง API ซ้ำให้เปลืองเน็ต

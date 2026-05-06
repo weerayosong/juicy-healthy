@@ -1,6 +1,6 @@
 // สายโทรศัพท์ดึงสินค้า ไฟล์ที่เราใช้ดึงข้อมูลสินค้ามาโชว์หน้าแรก
 
-import { PRODUCTS_URL } from '../constants' // 1. นำเข้า PRODUCTS_URL
+import { PRODUCTS_URL, UPLOAD_URL } from '../constants'
 import { apiSlice } from './apiSlice'
 
 export const productsApiSlice = apiSlice.injectEndpoints({
@@ -40,6 +40,14 @@ export const productsApiSlice = apiSlice.injectEndpoints({
             }),
             invalidatesTags: ['Product'],
         }),
+        // endpoint upload รูปภาพ backend
+        uploadProductImage: builder.mutation({
+            query: (data) => ({
+                url: UPLOAD_URL,
+                method: 'POST',
+                body: data,
+            }),
+        }),
     }),
 })
 
@@ -49,4 +57,5 @@ export const {
     useCreateProductMutation,
     useUpdateProductMutation,
     useDeleteProductMutation,
+    useUploadProductImageMutation,
 } = productsApiSlice

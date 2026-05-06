@@ -6,6 +6,7 @@ import Loader from '../../components/Loader'
 import {
     useGetProductDetailsQuery,
     useUpdateProductMutation,
+    useUploadProductImageMutation,
 } from '../../slices/productsApiSlice'
 
 const ProductEditScreen = () => {
@@ -45,6 +46,26 @@ const ProductEditScreen = () => {
 
     const [updateProduct, { isLoading: loadingUpdate }] =
         useUpdateProductMutation()
+
+    // ดึง hook อัปโหลดมาใช้
+    const [uploadProductImage, { isLoading: loadingUpload }] =
+        useUploadProductImageMutation()
+
+    // สร้างฟังก์ชันเมื่อมีการเลือกไฟล์
+    const uploadFileHandler = async (e) => {
+        const formData = new FormData()
+        // e.target.files[0] คือไฟล์แรกที่ผู้ใช้เลือก
+        formData.append('image', e.target.files[0])
+
+        try {
+            const res = await uploadProductImage(formData).unwrap()
+            toast.success(res.message)
+            // เอา Path ของรูปภาพใหม่ที่ได้จาก Backend มาใส่ในช่อง Input อัตโนมัติ
+            setImage(res.image)
+        } catch (err) {
+            toast.error(err?.data?.message || err.error)
+        }
+    }
 
     const submitHandler = async (e) => {
         e.preventDefault()
@@ -161,17 +182,27 @@ const ProductEditScreen = () => {
                             />
                         </div>
 
-                        {/* รูปภาพ ทำระบบอัปโหลดทีหลัง */}
+                        {/* รูปภาพ เพิ่มระบบอัปโหลดละ */}
                         <div className="md:col-span-2">
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                รูปภาพ (URL หรือ Path)
+                                รูปภาพ (URL หรืออัปโหลดไฟล์)
                             </label>
+
                             <input
                                 type="text"
                                 value={image}
                                 onChange={(e) => setImage(e.target.value)}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-secondary bg-gray-50"
+                                placeholder="ใส่ URL ของรูปภาพ"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-secondary bg-gray-50 mb-2"
                             />
+
+                            <input
+                                type="file"
+                                label="เลือกไฟล์รูปภาพ"
+                                onChange={uploadFileHandler}
+                                className="w-full px-4 py-2 border border-gray-300 rounded-sm focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-sm file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 transition cursor-pointer"
+                            />
+                            {loadingUpload && <Loader />}
                         </div>
 
                         {/* รายละเอียด */}
