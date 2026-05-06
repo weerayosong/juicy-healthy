@@ -18,6 +18,8 @@ import SearchBox from './SearchBox'
 const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
 
+    const { cartItems } = useSelector((state) => state.cart)
+
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen)
     }
@@ -83,9 +85,15 @@ const Header = () => {
                         >
                             <FaShoppingBag className="text-lg mr-2 text-slate-300 group-hover:text-secondary transition" />
                             รถเข็น
-                            <span className="ml-1.5 bg-secondary text-white text-xs px-2 py-0.5 rounded-sm shadow-sm">
-                                3
-                            </span>
+                            {/* เงื่อนไข: ถ้ามีของในตะกร้า ค่อยโชว์จำนวน desktop-view */}
+                            {cartItems.length > 0 && (
+                                <span className="ml-2 bg-secondary text-white text-xs font-bold px-2 py-0.5 rounded-sm">
+                                    {cartItems.reduce(
+                                        (a, c) => a + Number(c.qty),
+                                        0,
+                                    )}
+                                </span>
+                            )}
                         </Link>
 
                         {/* โลจิกเช็คการ Login (Desktop) */}
@@ -155,9 +163,15 @@ const Header = () => {
                         >
                             <FaShoppingBag className="text-xl mr-4 text-slate-400" />
                             รถเข็น
-                            <span className="ml-2 bg-secondary text-white text-xs px-2 py-0.5 rounded-sm shadow-sm">
-                                3
-                            </span>
+                            {/* เงื่อนไข: ถ้ามีของในตะกร้า ค่อยโชว์จำนวน */}
+                            {cartItems.length > 0 && (
+                                <span className="ml-2 bg-secondary text-white text-xs font-bold px-2 py-0.5 rounded-sm">
+                                    {cartItems.reduce(
+                                        (a, c) => a + Number(c.qty),
+                                        0,
+                                    )}
+                                </span>
+                            )}
                         </Link>
 
                         {/* โลจิกเช็คการ Login (Mobile) */}
