@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { FaCarrot } from 'react-icons/fa6'
 import {
-    FaSearch,
     FaShoppingBag,
     FaUser,
     FaSlidersH,
@@ -13,6 +12,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import { useLogoutMutation } from '../slices/usersApiSlice'
 import { logout } from '../slices/authSlice'
+
+import SearchBox from './SearchBox'
 
 const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -71,16 +72,7 @@ const Header = () => {
 
                     {/* Search Bar */}
                     <div className="hidden md:block flex-1 max-w-md mx-8">
-                        <div className="flex bg-slate-900 rounded-sm overflow-hidden border border-slate-800 focus-within:border-secondary focus-within:ring-1 focus-within:ring-secondary transition shadow-inner">
-                            <input
-                                type="text"
-                                placeholder="ค้นหาสินค้า..."
-                                className="w-full px-4 py-2 bg-transparent text-white placeholder-slate-400 focus:outline-none"
-                            />
-                            <button className="text-slate-300 px-5 py-3 hover:text-secondary hover:bg-slate-800 transition flex items-center justify-center">
-                                <FaSearch />
-                            </button>
-                        </div>
+                        <SearchBox />
                     </div>
 
                     {/* Nav Links (Desktop) */}
@@ -152,16 +144,7 @@ const Header = () => {
             {isMenuOpen && (
                 <div className="md:hidden bg-slate-900 border-t border-slate-800 px-4 pt-4 pb-6 space-y-4 shadow-inner absolute w-full">
                     {/* Search Bar (Mobile) */}
-                    <div className="flex bg-slate-950 rounded-sm overflow-hidden border border-slate-800 focus-within:border-secondary focus-within:ring-1 focus-within:ring-secondary transition shadow-inner mb-6">
-                        <input
-                            type="text"
-                            placeholder="ค้นหาสินค้า..."
-                            className="w-full px-4 py-3 bg-transparent text-white placeholder-slate-400 focus:outline-none"
-                        />
-                        <button className="text-slate-300 px-5 hover:text-secondary transition flex items-center justify-center">
-                            <FaSearch />
-                        </button>
-                    </div>
+                    <SearchBox />
 
                     {/* Nav Links (Mobile) */}
                     <div className="flex flex-col space-y-5 text-base font-medium">

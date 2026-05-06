@@ -3,9 +3,16 @@ import Product from '../models/productModel.js'
 
 // @desc    Fetch all products
 // @route   GET /api/products
-// @access  Public (ใครก็ดูได้)
+// @access  Public
 const getProducts = asyncHandler(async (req, res) => {
-    const products = await Product.find({})
+    // ถ้ารับ keyword มาจาก URL ให้สร้างเงื่อนไขค้นหาด้วย Regex
+    const keyword = req.query.keyword
+        ? { name: { $regex: req.query.keyword, $options: 'i' } }
+        : {}
+
+    // เพิ่ม .sort({ _id: 1 }) เข้าไปเพื่อบังคับให้เรียงตามคิว 1-50
+    const products = await Product.find({ ...keyword }).sort({ _id: 1 })
+
     res.json(products)
 })
 

@@ -6,8 +6,11 @@ import { apiSlice } from './apiSlice'
 export const productsApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         getProducts: builder.query({
-            query: () => ({
-                url: PRODUCTS_URL, // 2. เปลี่ยนมาใช้ตัวแปรตรงนี้
+            // 1. ใส่ = {} เผื่อโดนเรียกใช้แบบไม่มี keyword จะได้ไม่แครช
+            query: ({ keyword } = {}) => ({
+                url: PRODUCTS_URL,
+                // 2. เช็คก่อนว่ามี keyword ส่งมาไหม ถ้ามีค่อยแปลงเป็น params
+                params: keyword ? { keyword } : {},
             }),
             keepUnusedDataFor: 5,
         }),
