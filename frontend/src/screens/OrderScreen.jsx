@@ -51,6 +51,7 @@ const OrderScreen = () => {
                     value: {
                         'client-id': paypal.clientId,
                         currency: 'USD',
+                        'disable-funding': 'card',
                     },
                 })
                 paypalDispatch({ type: 'setLoadingStatus', value: 'pending' })
