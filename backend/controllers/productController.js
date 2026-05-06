@@ -5,15 +5,24 @@ import Product from '../models/productModel.js'
 // @route   GET /api/products
 // @access  Public
 const getProducts = asyncHandler(async (req, res) => {
+    const pageSize = 8
+    const page = Number(req.query.pageNumber) || 1
     // ถ้ารับ keyword มาจาก URL ให้สร้างเงื่อนไขค้นหาด้วย Regex
     const keyword = req.query.keyword
         ? { name: { $regex: req.query.keyword, $options: 'i' } }
         : {}
 
-    // เพิ่ม .sort({ _id: 1 }) เข้าไปเพื่อบังคับให้เรียงตามคิว 1-50
-    const products = await Product.find({ ...keyword }).sort({ _id: 1 })
+    const count = await Product.countDocuments({ ...keyword })
 
-    res.json(products)
+    // เพิ่ม .sort({ _id: 1 }) เข้าไปเพื่อบังคับให้เรียงตามคิว 1-50
+    // ดึงข้อมูลสินค้าโดยใช้ .limit() และ .skip() เพื่อข้ามไปหน้าที่ต้องการ
+    const products = await Product.find({ ...keyword })
+        .sort({ _id: 1 })
+        .limit(pageSize)
+        .skip(pageSize * (page - 1))
+
+    // ส่งข้อมูลกลับไปแบบแพ็กเกจใหญ่ (มีทั้งสินค้า, เลขหน้าปัจจุบัน, และจำนวนหน้าทั้งหมด)
+    res.json({ products, page, pages: Math.ceil(count / pageSize) })
 })
 
 // @desc    Fetch single product

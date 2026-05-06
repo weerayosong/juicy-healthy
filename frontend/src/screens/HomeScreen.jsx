@@ -3,17 +3,18 @@ import { useGetProductsQuery } from '../slices/productsApiSlice'
 import Product from '../components/Product'
 import Loader from '../components/Loader'
 import Message from '../components/Message'
+import Paginate from '../components/Paginate'
 
 const HomeScreen = () => {
     // 1. ดึง keyword จาก URL ที่พิมพ์ในกล่องค้นหา
-    const { keyword } = useParams()
+    const { keyword, pageNumber } = useParams()
 
     // 2. ใช้พลังของ Redux ดึงข้อมูลแทน axios แบบเดิม (และส่ง keyword เข้าไปกรองข้อมูลด้วย)
-    const {
-        data: products,
-        isLoading,
-        error,
-    } = useGetProductsQuery({ keyword })
+    // data มาทั้งก้อน (ซึ่งในก้อนนั้นจะมี products, page, pages ซ่อนอยู่)
+    const { data, isLoading, error } = useGetProductsQuery({
+        keyword,
+        pageNumber,
+    })
 
     return (
         <>
@@ -43,11 +44,21 @@ const HomeScreen = () => {
                     {error?.data?.message || error.error}
                 </Message>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                    {products.map((product) => (
-                        <Product key={product._id} product={product} />
-                    ))}
-                </div>
+                <>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                        {/* 💡 เปลี่ยนเป็น data.products.map เพื่อเจาะทะลุเข้าไปเอา Array สินค้า */}
+                        {data.products.map((product) => (
+                            <Product key={product._id} product={product} />
+                        ))}
+                    </div>
+
+                    {/* 💡 เอาปุ่ม Paginate มาวางตรงนี้ครับ */}
+                    <Paginate
+                        pages={data.pages}
+                        page={data.page}
+                        keyword={keyword ? keyword : ''}
+                    />
+                </>
             )}
         </>
     )

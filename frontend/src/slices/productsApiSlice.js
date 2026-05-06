@@ -7,10 +7,10 @@ export const productsApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         getProducts: builder.query({
             // 1. ใส่ = {} เผื่อโดนเรียกใช้แบบไม่มี keyword จะได้ไม่แครช
-            query: ({ keyword } = {}) => ({
+            query: ({ keyword, pageNumber } = {}) => ({
                 url: PRODUCTS_URL,
                 // 2. เช็คก่อนว่ามี keyword ส่งมาไหม ถ้ามีค่อยแปลงเป็น params
-                params: keyword ? { keyword } : {},
+                params: { keyword, pageNumber }, // ส่ง pageNumber แนบไปกับ URL
             }),
             keepUnusedDataFor: 5,
         }),
