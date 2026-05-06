@@ -4,6 +4,7 @@ import Product from '../components/Product'
 import Loader from '../components/Loader'
 import Message from '../components/Message'
 import Paginate from '../components/Paginate'
+import ProductCarousel from '../components/ProductCarousel'
 
 const HomeScreen = () => {
     // 1. ดึง keyword จาก URL ที่พิมพ์ในกล่องค้นหา
@@ -28,13 +29,18 @@ const HomeScreen = () => {
                 </Link>
             )}
 
+            {/* Product Carousel */}
+            {!keyword && <ProductCarousel />}
+
             <h1 className="text-3xl font-bold text-slate-800 uppercase tracking-wide">
                 {keyword
                     ? `ผลการค้นหาสำหรับ: "${keyword}"`
                     : 'สินค้าสุขภาพล่าสุด'}
             </h1>
             <p className="text-md md:text-xl font-bold text-slate-600 mb-8 mt-2">
-                Fetch ผ่าน Redux ขนส่งสดใหม่จาก Backend
+                🍎🥝ข้อมูลสดใหม่เด็ดจากต้น Database เข้าเครื่องคั้น Backend
+                รักษา State ให้เย็นฉ่ำด้วย Redux พร้อมเสิร์ฟถึงมือคุณผ่าน
+                Frontend 🍏🍑
             </p>
 
             {isLoading ? (
@@ -46,13 +52,13 @@ const HomeScreen = () => {
             ) : (
                 <>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                        {/* 💡 เปลี่ยนเป็น data.products.map เพื่อเจาะทะลุเข้าไปเอา Array สินค้า */}
+                        {/* เปลี่ยนเป็น data.products.map เพื่อเจาะทะลุเข้าไปเอา Array สินค้า */}
                         {data.products.map((product) => (
                             <Product key={product._id} product={product} />
                         ))}
                     </div>
 
-                    {/* 💡 เอาปุ่ม Paginate มาวางตรงนี้ครับ */}
+                    {/* Paginate */}
                     <Paginate
                         pages={data.pages}
                         page={data.page}

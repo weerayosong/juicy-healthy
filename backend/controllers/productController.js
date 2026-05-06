@@ -39,6 +39,15 @@ const getProductById = asyncHandler(async (req, res) => {
     }
 })
 
+// @desc    Get top rated products
+// @route   GET /api/products/top
+// @access  Public
+const getTopProducts = asyncHandler(async (req, res) => {
+    // ค้นหาสินค้าทั้งหมด เรียงตามเรตติ้ง (มากไปน้อย) และหยิบมาแค่ 3 อันดับแรก
+    const products = await Product.find({}).sort({ rating: -1 }).limit(3)
+    res.json(products)
+})
+
 // ==========================================
 // 🔴 โซนของ ADMIN
 // ==========================================
@@ -110,4 +119,5 @@ export {
     createProduct,
     updateProduct,
     deleteProduct,
+    getTopProducts,
 }

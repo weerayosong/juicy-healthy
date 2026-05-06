@@ -8,6 +8,7 @@ import {
     createProduct,
     updateProduct,
     deleteProduct,
+    getTopProducts,
 } from '../controllers/productController.js'
 
 // นำเข้า Middleware ป้องกัน (ยาม)
@@ -22,6 +23,9 @@ router
     .route('/')
     .get(getProducts) // ดึงสินค้าทั้งหมด (คนทั่วไป)
     .post(protect, admin, createProduct) // สร้างสินค้า (ต้องเป็น Admin)
+
+// เส้นทาง /top (ต้องอยู่เหนือ /:id)
+router.get('/top', getTopProducts)
 
 // Route: /api/products/:id
 router

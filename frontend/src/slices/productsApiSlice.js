@@ -20,6 +20,14 @@ export const productsApiSlice = apiSlice.injectEndpoints({
             }),
             keepUnusedDataFor: 5,
         }),
+        // ท่อใหม่ตรงนี้ สำหรับดูดสินค้าฮิต
+        getTopProducts: builder.query({
+            query: () => ({
+                url: `${PRODUCTS_URL}/top`,
+            }),
+            keepUnusedDataFor: 5,
+        }),
+
         // หน้าจัดการ โปรดัก แอดมิน
         createProduct: builder.mutation({
             query: () => ({
@@ -61,4 +69,5 @@ export const {
     useUpdateProductMutation,
     useDeleteProductMutation,
     useUploadProductImageMutation,
+    useGetTopProductsQuery,
 } = productsApiSlice
