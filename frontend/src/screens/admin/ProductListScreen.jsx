@@ -8,9 +8,16 @@ import {
     useDeleteProductMutation,
 } from '../../slices/productsApiSlice'
 
+import { useParams } from 'react-router-dom'
+import Paginate from '../../components/Paginate'
+
 const ProductListScreen = () => {
+    const { pageNumber } = useParams()
+
     // ดึงข้อมูลสินค้าทั้งหมดมาแสดง
-    const { data: products, isLoading, error, refetch } = useGetProductsQuery()
+    const { data, isLoading, error, refetch } = useGetProductsQuery({
+        pageNumber,
+    })
 
     // ฟังก์ชันสร้างและลบสินค้า
     const [createProduct, { isLoading: loadingCreate }] =
@@ -89,10 +96,10 @@ const ProductListScreen = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {products.map((product) => (
+                            {data.products.map((product) => (
                                 <tr
                                     key={product._id}
-                                    className="border-b hover:bg-gray-50 transition"
+                                    className="border-b border-gray-200 hover:bg-gray-50"
                                 >
                                     <td className="p-4 text-gray-500 font-mono text-sm">
                                         {product._id.substring(0, 10)}...
@@ -133,6 +140,12 @@ const ProductListScreen = () => {
                             ))}
                         </tbody>
                     </table>
+                    {/* Paginate พร้อมเปิดโหมด isAdmin={true} */}
+                    <Paginate
+                        pages={data.pages}
+                        page={data.page}
+                        isAdmin={true}
+                    />
                 </div>
             )}
         </div>
