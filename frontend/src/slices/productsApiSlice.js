@@ -27,6 +27,15 @@ export const productsApiSlice = apiSlice.injectEndpoints({
             }),
             keepUnusedDataFor: 5,
         }),
+        // redux เติมท่อส่ง รีวิว
+        createReview: builder.mutation({
+            query: (data) => ({
+                url: `${PRODUCTS_URL}/${data.productId}/reviews`,
+                method: 'POST',
+                body: data,
+            }),
+            invalidatesTags: ['Product'], // สั่งให้รีเฟรชแคช Product เพื่อให้รีวิวใหม่โชว์ทันที
+        }),
 
         // หน้าจัดการ โปรดัก แอดมิน
         createProduct: builder.mutation({
@@ -70,4 +79,5 @@ export const {
     useDeleteProductMutation,
     useUploadProductImageMutation,
     useGetTopProductsQuery,
+    useCreateReviewMutation,
 } = productsApiSlice
