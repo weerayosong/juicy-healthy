@@ -1,6 +1,12 @@
 import { Link } from 'react-router-dom'
 
-const Paginate = ({ pages, page, isAdmin = false, keyword = '' }) => {
+const Paginate = ({
+    pages,
+    page,
+    isAdmin = false,
+    isOrder = false,
+    keyword = '',
+}) => {
     // ถ้ามีหน้าเดียว ไม่ต้องโชว์ปุ่ม
     if (pages <= 1) return null
 
@@ -13,7 +19,11 @@ const Paginate = ({ pages, page, isAdmin = false, keyword = '' }) => {
                 {[...Array(pages).keys()].map((x) => {
                     // สร้าง URL ปลายทาง ว่ากดแล้วจะไปไหน
                     let destination
-                    if (isAdmin) {
+                    if (isAdmin && isOrder) {
+                        // ถ้าเป็นหน้าออเดอร์ของแอดมิน
+                        destination = `/admin/orderlist/${x + 1}`
+                    } else if (isAdmin) {
+                        // ถ้าเป็นหน้าสินค้าของแอดมิน
                         destination = `/admin/productlist/${x + 1}`
                     } else if (keyword) {
                         destination = `/search/${keyword}/page/${x + 1}`

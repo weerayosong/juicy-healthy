@@ -94,13 +94,37 @@ const getMyOrders = asyncHandler(async (req, res) => {
     res.status(200).json(orders)
 })
 
+// Refactor This
+// // @desc    Get all orders
+// // @route   GET /api/orders
+// // @access  Private/Admin
+// const getOrders = asyncHandler(async (req, res) => {
+//     // ดึงออเดอร์ทั้งหมด พร้อมข้อมูล user (เอาแค่ id กับ name)
+//     const orders = await Order.find({}).populate('user', 'id name')
+//     res.status(200).json(orders)
+// })
 // @desc    Get all orders
 // @route   GET /api/orders
 // @access  Private/Admin
 const getOrders = asyncHandler(async (req, res) => {
-    // ดึงออเดอร์ทั้งหมด พร้อมข้อมูล user (เอาแค่ id กับ name)
-    const orders = await Order.find({}).populate('user', 'id name')
-    res.status(200).json(orders)
+    // 1. กำหนดจำนวนออเดอร์ต่อหน้า (ลองตั้งสัก 10 ก่อนก็ได้ครับ)
+    const pageSize = 10
+
+    // 2. รับเลขหน้า
+    const page = Number(req.query.pageNumber) || 1
+
+    // 3. นับจำนวนออเดอร์ทั้งหมด
+    const count = await Order.countDocuments({})
+
+    // 4. ดึงออเดอร์แบบข้ามหน้า (sort ด้วย createdAt: -1 เพื่อเอาออเดอร์ล่าสุดขึ้นก่อน)
+    const orders = await Order.find({})
+        .populate('user', 'id name')
+        .sort({ createdAt: -1 })
+        .limit(pageSize)
+        .skip(pageSize * (page - 1))
+
+    // 5. ส่งกลับไปเป็น Object เหมือนตอนทำ Product
+    res.json({ orders, page, pages: Math.ceil(count / pageSize) })
 })
 
 // @desc    Update order to delivered

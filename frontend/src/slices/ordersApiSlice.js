@@ -41,10 +41,12 @@ export const ordersApiSlice = apiSlice.injectEndpoints({
             keepUnusedDataFor: 5,
         }),
 
-        // สำหรับ Admin: ดึงออเดอร์ทั้งหมด
+        // สำหรับ Admin: ดึงออเดอร์ทั้งหมด refactored for paginate
         getOrders: builder.query({
-            query: () => ({
+            // รับ pageNumber เป็นพารามิเตอร์
+            query: ({ pageNumber } = {}) => ({
                 url: ORDERS_URL,
+                params: { pageNumber }, // แนบไปกับ URL
             }),
             keepUnusedDataFor: 5,
         }),

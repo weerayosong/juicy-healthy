@@ -1,10 +1,13 @@
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import Message from '../../components/Message'
 import Loader from '../../components/Loader'
 import { useGetOrdersQuery } from '../../slices/ordersApiSlice'
 
+import Paginate from '../../components/Paginate'
+
 const OrderListScreen = () => {
-    const { data: orders, isLoading, error } = useGetOrdersQuery()
+    const { pageNumber } = useParams()
+    const { data, isLoading, error } = useGetOrdersQuery({ pageNumber }) // ส่งทั้งก้อน data ไม่ได้เอาแค่ data:orders ละ
 
     return (
         <div className="container mx-auto py-8 px-4 font-sans">
@@ -33,7 +36,8 @@ const OrderListScreen = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {orders.map((order) => (
+                            {/* เจาะทะลุ data.orders */}
+                            {data.orders.map((order) => (
                                 <tr
                                     key={order._id}
                                     className="border-b hover:bg-gray-50 transition"
@@ -86,6 +90,13 @@ const OrderListScreen = () => {
                             ))}
                         </tbody>
                     </table>
+                    {/* Paginate พร้อมบอกว่านี่คือหน้า Order*/}
+                    <Paginate
+                        pages={data.pages}
+                        page={data.page}
+                        isAdmin={true}
+                        isOrder={true}
+                    />
                 </div>
             )}
         </div>
