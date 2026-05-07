@@ -9,6 +9,7 @@ import {
     updateProduct,
     deleteProduct,
     getTopProducts,
+    createProductReview,
 } from '../controllers/productController.js'
 
 // นำเข้า Middleware ป้องกัน (ยาม)
@@ -33,5 +34,7 @@ router
     .get(getProductById) // ดูรายละเอียดสินค้า (คนทั่วไป)
     .put(protect, admin, updateProduct) // แก้ไขสินค้า (ต้องเป็น Admin)
     .delete(protect, admin, deleteProduct) // ลบสินค้า (ต้องเป็น Admin)
+
+router.route('/:id/reviews').post(protect, createProductReview) // protect ต้อง login ก่อนรีวิว
 
 export default router

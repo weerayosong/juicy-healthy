@@ -48,6 +48,52 @@ const getTopProducts = asyncHandler(async (req, res) => {
     res.json(products)
 })
 
+// @desc    Create new review (สร้างรีวิวสินค้า)
+// @route   POST /api/products/:id/reviews
+// @access  Private (ต้อง Login ถึงจะรีวิวได้)
+const createProductReview = asyncHandler(async (req, res) => {
+    const { rating, comment } = req.body
+
+    const product = await Product.findById(req.params.id)
+
+    if (product) {
+        // 1. เช็คว่า User คนนี้เคยรีวิวสินค้านี้ไปแล้วหรือยัง
+        const alreadyReviewed = product.reviews.find(
+            (r) => r.user.toString() === req.user._id.toString(),
+        )
+
+        if (alreadyReviewed) {
+            res.status(400)
+            throw new Error('คุณได้รีวิวสินค้านี้ไปแล้ว')
+        }
+
+        // 2. สร้างออบเจ็กต์รีวิวใหม่
+        const review = {
+            name: req.user.name,
+            rating: Number(rating),
+            comment,
+            user: req.user._id,
+        }
+
+        // 3. เพิ่มรีวิวใหม่เข้าไปใน Array
+        product.reviews.push(review)
+
+        // 4. อัปเดตจำนวนคนรีวิว
+        product.numReviews = product.reviews.length
+
+        // 5. คำนวณคะแนนเฉลี่ยใหม่ (เอาคะแนนทั้งหมดบวกกัน หารด้วยจำนวนคน)
+        product.rating =
+            product.reviews.reduce((acc, item) => item.rating + acc, 0) /
+            product.reviews.length
+
+        await product.save()
+        res.status(201).json({ message: 'เพิ่มรีวิวสำเร็จแล้ว' })
+    } else {
+        res.status(404)
+        throw new Error('ไม่พบสินค้าที่ต้องการรีวิว')
+    }
+})
+
 // ==========================================
 // 🔴 โซนของ ADMIN
 // ==========================================
@@ -120,4 +166,5 @@ export {
     updateProduct,
     deleteProduct,
     getTopProducts,
+    createProductReview,
 }
