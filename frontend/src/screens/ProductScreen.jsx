@@ -52,6 +52,13 @@ const ProductScreen = () => {
     // ฟังก์ชันจัดการตอนกดส่งรีวิว
     const submitHandler = async (e) => {
         e.preventDefault()
+
+        // ดักจับกรณีพิมพ์มาแค่ช่องว่าง เทสspacebar รัวๆ
+        if (comment.trim() === '') {
+            toast.error('กรุณาพิมพ์ข้อความรีวิวก่อนกดส่ง 🍒')
+            return // สั่งหยุดการทำงาน ไม่ต้องส่งไปหลังบ้าน
+        }
+
         try {
             await createReview({
                 productId,
@@ -59,7 +66,7 @@ const ProductScreen = () => {
                 comment,
             }).unwrap()
             refetch()
-            toast.success('ส่งรีวิวสำเร็จแล้ว! ขอบคุณครับ 🥕')
+            toast.success('ส่งรีวิวสำเร็จแล้ว! 🥕')
             setRating(0)
             setComment('')
         } catch (err) {

@@ -12,6 +12,7 @@ export const productsApiSlice = apiSlice.injectEndpoints({
                 // 2. เช็คก่อนว่ามี keyword ส่งมาไหม ถ้ามีค่อยแปลงเป็น params
                 params: { keyword, pageNumber }, // ส่ง pageNumber แนบไปกับ URL
             }),
+            providesTags: ['Product'],
             keepUnusedDataFor: 5,
         }),
         getProductDetails: builder.query({
@@ -25,6 +26,7 @@ export const productsApiSlice = apiSlice.injectEndpoints({
             query: () => ({
                 url: `${PRODUCTS_URL}/top`,
             }),
+            providesTags: ['Product'],
             keepUnusedDataFor: 5,
         }),
         // redux เติมท่อส่ง รีวิว
