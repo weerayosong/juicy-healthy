@@ -77,9 +77,8 @@ const cartSlice = createSlice({
             return updateCart(state)
         },
         clearCartItems: (state) => {
-            state.cartItems = [] // เคลียร์สินค้าใน State
-            // อัปเดตราคาทั้งหมดให้เป็น 0 (ใช้ฟังก์ชัน updateCart ที่คุณอ๋องมีอยู่แล้ว)
-            return updateCart(state)
+            state.cartItems = []
+            localStorage.setItem('cart', JSON.stringify(state))
         },
     },
 })

@@ -12,6 +12,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import { useLogoutMutation } from '../slices/usersApiSlice'
 import { logout } from '../slices/authSlice'
+import { clearCartItems } from '../slices/cartSlice'
 
 import SearchBox from './SearchBox'
 
@@ -34,6 +35,7 @@ const Header = () => {
         try {
             await logoutApiCall().unwrap()
             dispatch(logout())
+            dispatch(clearCartItems())
             navigate('/login')
             setIsMenuOpen(false) // ปิดเมนูมือถือตอนกดออก
         } catch (err) {
