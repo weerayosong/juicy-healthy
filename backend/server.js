@@ -4,12 +4,14 @@ import dotenv from 'dotenv'
 import cookieParser from 'cookie-parser'
 dotenv.config()
 import connectDB from './config/db.js'
+
 // นำเข้า Routes ต่างๆ
 import productRoutes from './routes/productRoutes.js'
 import userRoutes from './routes/userRoutes.js'
 import orderRoutes from './routes/orderRoutes.js'
 import uploadRoutes from './routes/uploadRoutes.js'
-// นำเข้า Error Middleware ที่เพิ่งสร้าง
+
+// นำเข้า Error Middleware
 import { notFound, errorHandler } from './middleware/errorMiddleware.js'
 
 const port = process.env.PORT || 5000
@@ -35,26 +37,14 @@ app.get('/api/config/paypal', (req, res) =>
     res.send({ clientId: process.env.PAYPAL_CLIENT_ID }),
 )
 
-// ตั้งค่าโฟลเดอร์ uploads ให้เปิดแบบ Public
+// ตั้งค่าโฟลเดอร์ uploads ให้เปิดแบบ Public (ถอยออกไปหาโฟลเดอร์นอกสุด)
 const __dirname = path.resolve()
-// app.use('/uploads', express.static(path.join(__dirname, '/uploads')))
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')))
 
-// Deploy setup1: ให้ Backend ดึงไฟล์หน้าบ้าน (Frontend) มาโชว์ตอนอยู่บน Vercel
-if (process.env.NODE_ENV === 'production') {
-    // ให้เข้าถึงไฟล์ที่ Build เสร็จแล้วในโฟลเดอร์ frontend/dist
-    app.use(express.static(path.join(__dirname, '/frontend/dist')))
-
-    // ถ้าพิมพ์ URL หน้าเว็บอื่นๆ ให้โยนไปที่ไฟล์ index.html เสมอ
-    app.get('*', (req, res) =>
-        res.sendFile(path.resolve(__dirname, 'frontend', 'dist', 'index.html')),
-    )
-} else {
-    // ถ้าเพิ่งเปิด dev ในคอมเรา ให้โชว์ข้อความปกติ
-    app.get('/', (req, res) => {
-        res.send('API is running...')
-    })
-}
+// ✅ Deploy setup1 ไม่ส่งไฟล์ HTML ทิ้งไป แล้วเหลือแค่นี้พอ
+app.get('/', (req, res) => {
+    res.send('API is running...')
+})
 
 // วางตาข่ายดักจับ Error ไว้ "ล่างสุด" เสมอ (ต้องอยู่ใต้ Routes ทั้งหมด)
 app.use(notFound)
@@ -64,9 +54,6 @@ app.use(errorHandler)
 if (process.env.NODE_ENV !== 'production') {
     app.listen(port, () => console.log(`Server running on port ${port}`))
 }
-
-// for local test
-// app.listen(port, () => console.log(`Server running on port ${port}`))
 
 // Deploy setup3: ส่งออก app ให้ Vercel เอาไปเป็น Serverless Function
 export default app
