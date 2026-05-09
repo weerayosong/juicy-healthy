@@ -34,6 +34,8 @@ import AdminRoute from './components/AdminRoute'
 
 import { PayPalScriptProvider } from '@paypal/react-paypal-js'
 
+import { HelmetProvider } from 'react-helmet-async'
+
 // สร้าง Router จำลองโครงสร้างไว้ก่อน เดี๋ยวเพิม route ตาม page-level components
 // ฝึกใช้แบบ data mode ไปเลย ถึงแม้ routes/route จะง่ายกว่าก็เถอะ
 const router = createBrowserRouter(
@@ -93,18 +95,20 @@ const router = createBrowserRouter(
         </Route>,
     ),
 )
-// console.log({ router })
-// console.log(typeof { router })
 
 ReactDOM.createRoot(document.getElementById('root')).render(
     <StrictMode>
-        <Provider store={store}>
-            {/* หุ้ม RouterProvider ด้วย PayPalScriptProvider */}
-            {/* deferLoading={true} หมายถึงยังไม่ต้องโหลดจนกว่าเราจะสั่ง เพื่อประหยัดทรัพยากรครับ */}
-            <PayPalScriptProvider deferLoading={true}>
-                <RouterProvider router={router} />
-            </PayPalScriptProvider>
-        </Provider>
+        {/* 1. HelmetProvider อยู่ชั้นนอกสุดเพื่อคุม Meta ทั้งเว็บ */}
+        <HelmetProvider>
+            {/* 2. Redux Provider เพื่อให้ทุกอย่างเข้าถึง Global State ได้ */}
+            <Provider store={store}>
+                {/* 3. PayPalScriptProvider สำหรับระบบจ่ายเงิน */}
+                <PayPalScriptProvider deferLoading={true}>
+                    {/* 4. RouterProvider เป็นตัวจัดการการแสดงผลหน้าต่างๆ อยู่ในสุด */}
+                    <RouterProvider router={router} />
+                </PayPalScriptProvider>
+            </Provider>
+        </HelmetProvider>
     </StrictMode>,
 )
 

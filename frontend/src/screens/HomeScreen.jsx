@@ -5,6 +5,7 @@ import Loader from '../components/Loader'
 import Message from '../components/Message'
 import Paginate from '../components/Paginate'
 import ProductCarousel from '../components/ProductCarousel'
+import Meta from '../components/Meta'
 
 const HomeScreen = () => {
     // 1. ดึง keyword จาก URL ที่พิมพ์ในกล่องค้นหา
@@ -19,6 +20,7 @@ const HomeScreen = () => {
 
     return (
         <>
+            <Meta />
             {/* ถ้ามีการค้นหา ให้มีปุ่มกดกลับหน้าแรก (เพื่อดึงสินค้าทั้งหมดกลับมา) */}
             {keyword && (
                 <Link

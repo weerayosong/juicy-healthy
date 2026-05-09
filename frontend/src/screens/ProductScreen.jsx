@@ -12,6 +12,8 @@ import Loader from '../components/Loader'
 import Message from '../components/Message'
 import Rating from '../components/Rating' // เพิ่มคอมโพเนนต์ Rating สำหรับโชว์ดาว
 
+import Meta from '../components/Meta'
+
 import { addToCart } from '../slices/cartSlice'
 // นำเข้า RTK Query ทั้งตัวดึงข้อมูล และตัวส่งรีวิว
 import {
@@ -84,6 +86,7 @@ const ProductScreen = () => {
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+            <Meta title={`Juicy Healthy | ${product.name}`} />
             <Link
                 to="/"
                 className="inline-flex items-center text-slate-500 hover:text-secondary transition duration-300 mb-8"
