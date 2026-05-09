@@ -15,7 +15,14 @@ const port = process.env.PORT || 5000
 connectDB()
 const app = express()
 
-app.use(cors())
+// ตั้งค่า CORS แบบจัดเต็มเพื่อให้ Vercel คุยกับ Render ได้
+app.use(
+    cors({
+        origin: 'https://juicy-healthy.vercel.app',
+        methods: ['GET', 'POST', 'PUT', 'DELETE'],
+        credentials: true, // สำคัญมาก! เพื่อให้ส่ง Cookie/Token ข้ามบ้านได้
+    }),
+)
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
