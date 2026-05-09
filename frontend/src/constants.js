@@ -1,7 +1,6 @@
 // มองว่าเป็น สมุดหน้าเหลือง ก่อนละกัน ใครรู้จักนี่ไม่เด็กนะครับ 555
 
-// ใช้ Proxy ใน vite.config.js อยู่แล้ว BASE_URL ปล่อยว่างไว้แบบนี้ได้เลย
-export const BASE_URL = ''
+export const BASE_URL = 'https://juicy-healthy-api.onrender.com'
 export const PRODUCTS_URL = '/api/products'
 export const USERS_URL = '/api/users'
 export const ORDERS_URL = '/api/orders'
