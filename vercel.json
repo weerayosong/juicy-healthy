@@ -4,27 +4,20 @@
         {
             "src": "frontend/package.json",
             "use": "@vercel/static-build",
-            "config": {
-                "distDir": "dist"
-            }
+            "config": { "distDir": "dist" }
         },
         {
             "src": "backend/server.js",
-            "use": "@vercel/node"
+            "use": "@vercel/node",
+            "config": {
+                "includeFiles": ["uploads/**"]
+            }
         }
     ],
     "rewrites": [
-        {
-            "source": "/api/(.*)",
-            "destination": "/backend/server.js"
-        },
-        {
-            "source": "/uploads/(.*)",
-            "destination": "/backend/server.js"
-        },
-        {
-            "source": "/(.*)",
-            "destination": "/index.html"
-        }
+        { "source": "/api/(.*)", "destination": "/backend/server.js" },
+        { "source": "/uploads/(.*)", "destination": "/backend/server.js" },
+        { "handle": "filesystem" },
+        { "source": "/(.*)", "destination": "/index.html" }
     ]
 }

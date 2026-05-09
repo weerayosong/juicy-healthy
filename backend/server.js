@@ -37,7 +37,8 @@ app.get('/api/config/paypal', (req, res) =>
 
 // ตั้งค่าโฟลเดอร์ uploads ให้เปิดแบบ Public
 const __dirname = path.resolve()
-app.use('/uploads', express.static(path.join(__dirname, '/uploads')))
+// app.use('/uploads', express.static(path.join(__dirname, '/uploads')))
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')))
 
 // Deploy setup1: ให้ Backend ดึงไฟล์หน้าบ้าน (Frontend) มาโชว์ตอนอยู่บน Vercel
 if (process.env.NODE_ENV === 'production') {
