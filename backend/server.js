@@ -35,15 +35,40 @@ app.get('/api/config/paypal', (req, res) =>
     res.send({ clientId: process.env.PAYPAL_CLIENT_ID }),
 )
 
-// 💡 ตั้งค่าโฟลเดอร์ uploads ให้เปิดแบบ Public
+// ตั้งค่าโฟลเดอร์ uploads ให้เปิดแบบ Public
 const __dirname = path.resolve()
 app.use('/uploads', express.static(path.join(__dirname, '/uploads')))
 
-// 💡 วางตาข่ายดักจับ Error ไว้ "ล่างสุด" เสมอ (ต้องอยู่ใต้ Routes ทั้งหมด)
+// Deploy setup1: ให้ Backend ดึงไฟล์หน้าบ้าน (Frontend) มาโชว์ตอนอยู่บน Vercel
+if (process.env.NODE_ENV === 'production') {
+    // ให้เข้าถึงไฟล์ที่ Build เสร็จแล้วในโฟลเดอร์ frontend/dist
+    app.use(express.static(path.join(__dirname, '/frontend/dist')))
+
+    // ถ้าพิมพ์ URL หน้าเว็บอื่นๆ ให้โยนไปที่ไฟล์ index.html เสมอ
+    app.get('*', (req, res) =>
+        res.sendFile(path.resolve(__dirname, 'frontend', 'dist', 'index.html')),
+    )
+} else {
+    // ถ้าเพิ่งเปิด dev ในคอมเรา ให้โชว์ข้อความปกติ
+    app.get('/', (req, res) => {
+        res.send('API is running...')
+    })
+}
+
+// วางตาข่ายดักจับ Error ไว้ "ล่างสุด" เสมอ (ต้องอยู่ใต้ Routes ทั้งหมด)
 app.use(notFound)
 app.use(errorHandler)
 
-app.listen(port, () => console.log(`Server running on port ${port}`))
+// Deploy setup2: ปรับเงื่อนไขการ Listen Port ให้ทำงานเฉพาะตอนเทสในคอม
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(port, () => console.log(`Server running on port ${port}`))
+}
+
+// for local test
+// app.listen(port, () => console.log(`Server running on port ${port}`))
+
+// Deploy setup3: ส่งออก app ให้ Vercel เอาไปเป็น Serverless Function
+export default app
 
 // 1. เบราว์เซอร์เคาะประตู (The Request): ตอนที่พิมพ์ http://localhost:5000/api/products เบราว์เซอร์ได้ส่งคำสั่งประเภท GET ไปหาเซิร์ฟเวอร์ Express ที่หลังบ้าน (พอร์ต 5000)
 // 2. Express รับเรื่องและส่งต่อ (The Router): ไฟล์ server.js เห็นว่ามีคนเรียก URL นี้ เลยบอกว่า "อ๋อ เส้นทางนี้ฉันฝากให้ productRoutes.js จัดการแล้ว" แล้วโยนงานให้
