@@ -9,15 +9,12 @@
         {
             "src": "backend/server.js",
             "use": "@vercel/node",
-            "config": {
-                "includeFiles": ["uploads/**"]
-            }
+            "config": { "includeFiles": ["uploads/**"] }
         }
     ],
     "rewrites": [
         { "source": "/api/(.*)", "destination": "/backend/server.js" },
         { "source": "/uploads/(.*)", "destination": "/backend/server.js" },
-        { "handle": "filesystem" },
         { "source": "/(.*)", "destination": "/index.html" }
     ]
 }
