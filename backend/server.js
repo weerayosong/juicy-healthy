@@ -17,10 +17,10 @@ connectDB()
 const port = process.env.PORT || 5000
 const app = express()
 
-// 2. ตั้งค่า CORS (เปิดประตูรับหน้าบ้าน Vercel ตัวจริงอันเดียว)
+// 2. ตั้งค่า CORS
 app.use(
     cors({
-        origin: 'https://juicy-healthy.vercel.app', // URL หน้าบ้านของคุณอ๋อง
+        origin: 'https://juicy-healthy.vercel.app', // URL
         methods: ['GET', 'POST', 'PUT', 'DELETE'],
         credentials: true, // อนุญาตให้ส่ง Cookie/Token ข้ามบ้านได้
         allowedHeaders: ['Content-Type', 'Authorization'],
